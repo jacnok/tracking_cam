@@ -21,7 +21,6 @@ def detect_bounding_box(vid):                                           # this f
         cv2.rectangle(vid, (x, y), (x + w, y + h), (0, 255, 0), 4)
     return faces
 
-<<<<<<< HEAD
 while True:
     ret, frame =cap.read()
 
@@ -29,15 +28,6 @@ while True:
 
     cv2.imshow("My Face Detection Project", frame)
       #
-=======
-# using this tutorial just to demonstrate that the webcam works: 
-# https://medium.com/@unknown.underme/opening-webcam-using-opencv-257ac258e217
-
-while True:
-    ret, frame = cap.read()
-
-    cv2.imshow('video', frame)
->>>>>>> 61140cbcf85f81f4d5592763b365c9a48d139e56
     if cv2.waitKey(1)==ord('q'):
         break
 cap.release()
