@@ -6,11 +6,13 @@ import numpy as np
 
 cap = cv2.VideoCapture(0)
 
-while True:
-    ret, frame =cap.read()
-    image = np.zeros(frame.shape,np.uint8)
+# using this tutorial just to demonstrate that the webcam works: 
+# https://medium.com/@unknown.underme/opening-webcam-using-opencv-257ac258e217
 
-    cv2.imshow('frame',image)
+while True:
+    ret, frame = cap.read()
+
+    cv2.imshow('video', frame)
     if cv2.waitKey(1)==ord('q'):
         break
 cap.release()
