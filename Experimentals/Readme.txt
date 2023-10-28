@@ -1,0 +1,2 @@
+Purpose of the experimental branch is to try other methods and aproaches without compromising the integrity of our main project.
+- Most scripts will not have enough comments to understand it without reading code
