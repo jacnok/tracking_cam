@@ -22,6 +22,7 @@ class Mcontrol:
         # self.Serial
     def keypressed(self,keycode):
         if self.lastkey !=keycode:
+            print(self.lastkey)
             if keycode== ord('w'):
                 print(b'w')
             elif keycode== ord('s'):
@@ -69,12 +70,12 @@ black_image = np.zeros((height, width, 3), dtype=np.uint8)
 while True:
 
     ports = serial.tools.list_ports.comports()
-    key=cv2.waitKey(5)
+    key=cv2.waitKey(100)
     mc.keypressed(key)
     if esp:
     # ser.write(b'Hello, World!')  # The 'b' prefix is used to indicate a byte string
         try:
-            data=ser.read(100)
+            data=ser.read(500)
         except:
             break
     if key == ord('q'):
