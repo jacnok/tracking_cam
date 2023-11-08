@@ -55,7 +55,7 @@ class Person:
         if success:
             self.bbox = bbox
             self.rect.setT(bbox)
-            self.update_roi(frame)
+            # self.update_roi(frame)
         else:
             self.tracking = False
         return success, bbox
@@ -95,7 +95,6 @@ while True:
             for person in persons[:]:
                 if person.rect.overlap(box)[0]:
                     person.rect.setT(new_face)
-                    person.update_roi(frame)
                     person.confidence = 2
                     person.tracking = True
                     break
