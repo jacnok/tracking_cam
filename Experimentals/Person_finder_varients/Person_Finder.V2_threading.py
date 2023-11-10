@@ -124,7 +124,7 @@ while True:
         small_gray = cv2.resize(gray, None, fx=scale_factor, fy=scale_factor)
 
         # Detect faces on the smaller image
-        faces = face_cascade.detectMultiScale(small_gray, 1.2, 4, minSize=(30, 30))
+        faces = face_cascade.detectMultiScale(small_gray, 1.1, 4, minSize=(30, 30))
 
         # Adjust detection coordinates to match the original frame size
         faces = [(int(x / scale_factor), int(y / scale_factor), int(w / scale_factor), int(h / scale_factor)) for (x, y, w, h) in faces]

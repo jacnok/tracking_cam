@@ -5,7 +5,7 @@ class Person:
     def __init__(self, tracker_type='KCF'):
         # Select the type of tracker
         self.tracker_types = {
-            'CSRT': cv2.TrackerCSRT_create,
+            # 'CSRT': cv2.TrackerCSRT_create,
             'KCF': cv2.TrackerKCF_create
         }
         self.recentPair=False

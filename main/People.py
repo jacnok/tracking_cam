@@ -6,7 +6,8 @@ class Person:
         # Select the type of tracker
         self.tracker_types = {
             'CSRT': cv2.TrackerCSRT_create,
-            'KCF': cv2.TrackerKCF_create
+            'KCF': cv2.TrackerKCF_create,
+            'GOTURN':cv2.TrackerGOTURN_create
         }
         self.recentPair=False
         self.tracker = self.tracker_types[tracker_type]()
