@@ -12,7 +12,7 @@ def get_face_roi(frame):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     
     # Detect faces in the grayscale frame.
-    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+    faces = face_cascade.detectMultiScale(gray, 1.5, 4)
     
     # If at least one face is detected, return the bounding box of the first face.
     if len(faces)>0:
@@ -40,25 +40,26 @@ while True:
                     tracker = cv2.TrackerCSRT_create()
                     tracker.init(frame,L_roi)
                     trackers.append(tracker)
-                    print("red")
+                    # print("red")
                     track=True
         elif len(last_rois)<len(rois):
             for (x, y, w, h) in rois:
                 cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
-                print("green")
+                # print("green")
                 track=False
     else:
         for (x, y, w, h) in rois:
             cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,255),2)
             track=False
-            print("yeelow?")
+            # print("yeelow?")
     if track:
                 for tracker in trackers:
                     (success, box) = tracker.update(frame)
+                    print(trackers)
                 if success:
                     (x, y, w, h) = [int(a) for a in box]
                     cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
-                    print("blue")
+                    # print("blue")
     #  cv2.rectangle(vid, (x, y), (x + w, y + h), (0, 255, 0), 4)
     last_rois=rois
     
