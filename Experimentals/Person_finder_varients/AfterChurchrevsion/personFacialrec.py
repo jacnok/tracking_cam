@@ -4,31 +4,60 @@ import rect as R
 import People as P
 from pynput import keyboard
 import MotorController as M
+import threading
+from deepface import DeepFace
+import os
 
 mc=M.Mcontrol()
+
 def draw_boxes(frame, boxes):
     for box in boxes:
         (x, y, w, h) = [int(v) for v in box]
         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-
+key_held=False
 def on_press(key):
-    global key_pressed
+    global key_pressed, key_held
     try:
         if key.char:  # Only consider printable keys
             key_pressed = key.char
             if mc.keypressed(key_pressed)==False:
                 controls(key_pressed)
-        
+                key_held=True
     except AttributeError:
         pass
+endthread=False
+def track():
+    global persons, frame, endthread,cap
+    while True:
+        try:
+            # if not cap.isOpened():
+            #     break
+            if len(persons)>0:
+                persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()]
+                # for person in persons:
+                #     if person.update(frame)[0]==False:
+                #         if person.unpair():
+                #             person.remove()
+                #             print("got rid of him")
+            else:
+                mc.none()
+                break
+            if endthread:
+                break
+        except:
+            print(Exception)
+            break
+        
+
 
 def on_release(key):
-    global key_pressed
+    global key_pressed , key_held
     try:
         if key.char and key.char == key_pressed:
            
             key_pressed = None  # Reset the key state
             mc.none()
+            key_held=False
     except AttributeError:
         pass
 
@@ -37,40 +66,57 @@ listener = keyboard.Listener(on_press=on_press, on_release=on_release)
 listener.start()
 
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+profile_face=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
+upperbody=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_upperbody.xml')
+sizechange=False
+# try:
+#     cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
+#     sizechange=True
+# except:
 cap = cv2.VideoCapture(0)
-
 persons = []
 frame_idx = 0
-face_detection_interval = 30  # Detect faces every 10 frames
+face_detection_interval = 1  # Detect faces every 10 frames
 box=R.Rect()
 selected=0
 
 ret, frame = cap.read()
+# frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
 def trackmovment(head,frame,boundx,boundy):
     movment=False
-    if (head.x<boundx):
-        cv2.line(frame, (boundx,0), (boundx,frame.shape[0]), (0,255,0), 2)
-        mc.right()
-        movment=True
-    elif (head.ex>frame.shape[1]-boundx):
-        cv2.line(frame, (frame.shape[1]-boundx,0), (frame.shape[1]-boundx,frame.shape[0]), (0,255,0), 2)
-        mc.left()
-        movment=True
-    if (head.y<int(boundy-(boundy/2))):
-        cv2.line(frame, (0,int(boundy-(boundy/2))), (frame.shape[1],int(boundy-(boundy/2))), (0,255,0), 2)
-        mc.up()
-        movment=True
-    elif(head.ey>frame.shape[0]-int(boundy+(boundy/2))):
-        cv2.line(frame, (0,frame.shape[0]-(int(boundy+(boundy/2)))), (frame.shape[1],frame.shape[0]-int(boundy+(boundy/2))), (0,255,0), 2)
-        mc.down()
-        movment=True
-    if movment==False:
-        mc.none()
+    if key_held==False:
+        if (head.x<boundx):
+            cv2.line(frame, (boundx,0), (boundx,frame.shape[0]), (0,255,0), 2)
+            mc.L=1
+            movment=True
+        elif (head.ex>frame.shape[1]-boundx):
+            cv2.line(frame, (frame.shape[1]-boundx,0), (frame.shape[1]-boundx,frame.shape[0]), (0,255,0), 2)
+            mc.r=1
+            movment=True
+        else:
+            mc.r=0
+            mc.L=0
+        if (head.y<int(boundy-(boundy/2))):
+            cv2.line(frame, (0,int(boundy-(boundy/2))), (frame.shape[1],int(boundy-(boundy/2))), (0,255,0), 2)
+            mc.p=1
+            movment=True
+        elif(head.ey>frame.shape[0]-int(boundy+(boundy/2))):
+            cv2.line(frame, (0,frame.shape[0]-(int(boundy+(boundy/2)))), (frame.shape[1],frame.shape[0]-int(boundy+(boundy/2))), (0,255,0), 2)
+            mc.d=1
+            movment=True
+        else:
+            mc.d=0
+            mc.u=0
+        
+        if movment==False:
+            mc.none()
+        else:
+            mc.write()
 boundx=200
 boundy=125
 showbounds=False
 def controls(key_pressed):
-    global boundy,boundx,frame,showbounds,persons,selected
+    global boundy,boundx,frame,showbounds,persons,selected,endthread
     showbounds=False
     if key_pressed=="f":
         if(boundx<int(frame.shape[1]/2)):
@@ -94,24 +140,62 @@ def controls(key_pressed):
     elif key_pressed=="x":
         if (selected+1)<len(persons):
             selected+=1
+    if key_pressed=="r":
+        print("okay")
+        while len(persons)>0:
+            endthread=True
+            for person in persons:
+                persons.remove(person)
     print(boundx)
     print(boundy)
+def checkface(frame):
+    files = os.listdir("Faces")  
+    jpeg_images = [file for file in files if file.endswith('.jpeg') or file.endswith('.jpg')]
+
+    try:
+        for image in jpeg_images:
+            name = os.path.splitext(image)[0]
+            pastdistance=.3
+            print(name)
+            full_image_path = os.path.join("Faces", image)  # Full path to the image
+            imagecopy = cv2.imread(full_image_path)  # Read the image using full path
+
+            if imagecopy is None:
+                print(f"Failed to read {full_image_path}. Check if the file exists and is not corrupted.")
+                continue
+
+            distance= DeepFace.verify(frame, imagecopy)['distance']
+            print(DeepFace.verify(frame, imagecopy))
+            if distance<pastdistance:
+                persons[len(persons)-1].namechange(name)
+                pastdistance=distance
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 while True:
     ret, frame = cap.read()
+    if sizechange:
+        frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
+    
     if not ret:
         break
     bottom_panel = np.zeros((200, frame.shape[1], 3), dtype="uint8")
-
+    if len(persons)<0:
+        face_detection_interval=1
+    elif face_detection_interval==1:
+        face_detection_interval=30
     if frame_idx % face_detection_interval == 0:
          # Convert frame to grayscale
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # Resize the frame for faster detection (scale down)
-        scale_factor = 0.75  # Example scale factor
+        scale_factor = 0.9  # Example scale factor
         small_gray = cv2.resize(gray, None, fx=scale_factor, fy=scale_factor)
 
         # Detect faces on the smaller image
         faces = face_cascade.detectMultiScale(small_gray, 1.1, 4, minSize=(30, 30))
+        if len(faces)==0 and persons==0:
+            faces= profile_face.detectMultiScale(small_gray, 1.1, 4, minSize=(30, 30))
 
         # Adjust detection coordinates to match the original frame size
         faces = [(int(x / scale_factor), int(y / scale_factor), int(w / scale_factor), int(h / scale_factor)) for (x, y, w, h) in faces]
@@ -133,16 +217,25 @@ while True:
                     if matched:
                         person.rect.set( new_face)
                         person.recentPair=True
-                        if dist>100000:
+                        if person.Name=="N/A":
+                            scan=frame[new_person.rect.y:new_person.rect.ey, new_person.rect.x:new_person.rect.ex]
+                            threading.Thread(target=checkface,args=(frame.copy(),)).start()
+                        if dist>2000:  
                             person.init(frame, new_face)
            
             if not matched:
+                old_len=len(persons)
                 new_person = P.Person(tracker_type='CSRT')
                 new_person.init(frame, new_face)
+                scan=frame[new_person.rect.y:new_person.rect.ey, new_person.rect.x:new_person.rect.ex]
+                threading.Thread(target=checkface,args=(scan.copy(),)).start()
                 persons.append(new_person)
+                if old_len==0 and len(persons)>0:
+                    endthread=False
+                    threading.Thread(target=track).start()
     
     ## Update all trackers and remove the ones that have failed
-    persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()]
+    # persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()]
     
     
     # Draw bounding boxes for all tracked persons
@@ -179,6 +272,7 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 # Release resources
+endthread=True
 cap.release()
 cv2.destroyAllWindows()
 mc.close()

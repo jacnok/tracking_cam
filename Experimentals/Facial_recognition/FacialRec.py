@@ -3,7 +3,7 @@ import threading
 from deepface import DeepFace
 # Initialize the Haar Cascade face detection model
 # face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-known_image=cv2.imread("me.jpg")
+known_image=cv2.imread("DC.jpg")
 # Start video capture
 cap = cv2.VideoCapture(0)
 counter=0
