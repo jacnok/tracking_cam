@@ -11,3 +11,4 @@ pip install face_recognition  -1.3.0-py2.
 git clone https://github.com/jacnok/tracking_cam.git
 pip install deepface   --0.0.79- when you run it it will install seperate model
 In order to use GOTURN you must install caffemodel sepretly
+Motor modification -10 ohm resitor on blue wire

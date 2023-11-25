@@ -25,7 +25,7 @@ def on_press(key):
         pass
 endthread=False
 def track():
-    global persons, frame, endthread,cap
+    global persons, frame, endthread,cap,resized
     while True:
         try:
             # if not cap.isOpened():
@@ -46,8 +46,31 @@ def track():
         except:
             print(Exception)
             break
-        
+flowthread=False
+lines = np.vstack([0, 0, 0,0]).T.reshape(-1, 2, 2)
+def draw_arrows():
+    global showflow, frame, endthread,cap,prev_gray,gray,flowthread,lines
+    flowthread=True
+    while showflow:
+        try:
+            if cap:
+                step=16
+                flow = cv2.calcOpticalFlowFarneback(prev_gray, gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+                h, w = gray.shape[:2]
+                y, x = np.mgrid[step//2:h:step, step//2:w:step].reshape(2, -1).astype(int)
+                fx, fy = flow[y, x].T
 
+                # Draw arrows
+                lines = np.vstack([x, y, x+fx, y+fy]).T.reshape(-1, 2, 2)
+                lines = np.int32(lines + 0.5)
+            if endthread:
+                flowthread=False
+                break
+        except Exception as e:
+            print(e)
+            break
+    flowthread=False
+showflow=False
 
 def on_release(key):
     global key_pressed , key_held
@@ -81,17 +104,21 @@ box=R.Rect()
 selected=0
 
 ret, frame = cap.read()
-# frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
+frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
+gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+prev_gray = gray
 def trackmovment(head,frame,boundx,boundy):
     global detect
     movment=False
     if detect:
         if key_held==False:
             if (head.x<boundx):
+                mc.Senitivity=abs((head.ex-(boundx)))
                 cv2.line(frame, (boundx,0), (boundx,frame.shape[0]), (0,255,0), 2)
                 mc.L=1
                 movment=True
             elif (head.ex>frame.shape[1]-boundx):
+                mc.Senitivity=abs((head.ex-(frame.shape[1]-boundx)))
                 cv2.line(frame, (frame.shape[1]-boundx,0), (frame.shape[1]-boundx,frame.shape[0]), (0,255,0), 2)
                 mc.r=1
                 movment=True
@@ -118,7 +145,7 @@ boundx=200
 boundy=125
 showbounds=False
 def controls(key_pressed):
-    global boundy,boundx,frame,showbounds,persons,selected, detect
+    global boundy,boundx,frame,showbounds,persons,selected, detect,showflow
     showbounds=False
     if key_pressed=="f":
         if(boundx<int(frame.shape[1]/2)):
@@ -152,6 +179,12 @@ def controls(key_pressed):
         else:
             detect=True
         print(detect)
+    if key_pressed=="z":
+        if(showflow):
+            showflow= False
+        else:
+            showflow=True
+        print(showflow)
     print(boundx)
     print(boundy)
 
@@ -162,8 +195,8 @@ while True:
     if ret:
         if sizechange:
             frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         resized=True
-        
         bottom_panel = np.zeros((200, frame.shape[1], 3), dtype="uint8")
         if len(persons)<0:
             face_detection_interval=1
@@ -171,19 +204,14 @@ while True:
             face_detection_interval=30
         if frame_idx % face_detection_interval == 0 and detect:
             # Convert frame to grayscale
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             # Resize the frame for faster detection (scale down)
-            scale_factor = 0.9  # Example scale factor
-            small_gray = cv2.resize(gray, None, fx=scale_factor, fy=scale_factor)
+            
 
             # Detect faces on the smaller image
-            faces = face_cascade.detectMultiScale(small_gray, 1.1, 4, minSize=(30, 30))
+            faces = face_cascade.detectMultiScale(gray, 1.2, 4, minSize=(30, 30))
             if len(faces)==0 and persons==0:
-                faces= profile_face.detectMultiScale(small_gray, 1.4, 4, minSize=(30, 30))
-
-            # Adjust detection coordinates to match the original frame size
-            faces = [(int(x / scale_factor), int(y / scale_factor), int(w / scale_factor), int(h / scale_factor)) for (x, y, w, h) in faces]
+                faces= profile_face.detectMultiScale(gray, 1.1, 4, minSize=(30, 30))
 
             for (x, y, w, h) in faces:
                 
@@ -214,8 +242,7 @@ while True:
                         threading.Thread(target=track).start()
         
         ## Update all trackers and remove the ones that have failed
-        # persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()]
-        
+        # persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()
         
         # Draw bounding boxes for all tracked persons
         draw_boxes(frame, [person.bbox for person in persons if person.bbox is not None])
@@ -242,8 +269,16 @@ while True:
                 cv2.rectangle(bottom_panel,(i*100,0),((i + 1) * 100,200),(0,255,0),4)
 
         # Stack the main frame and the bottom panel
-        frame = np.vstack((frame, bottom_panel))
+        if showflow and not flowthread:
+            threading.Thread(target=draw_arrows).start()
+        if showflow:
+            try:
+                for (x1, y1), (x2, y2) in lines:
+                    cv2.arrowedLine(frame, (x1, y1), (x2, y2), (0, 255, 0), 1, tipLength=0.3)
+            except Exception as e:
+                print(e)
 
+        frame = np.vstack((frame, bottom_panel))
         # Display the frame
         cv2.imshow("My Face Detection Project", frame)
 
@@ -253,6 +288,7 @@ while True:
         cap = cv2.VideoCapture(0)
     if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+    prev_gray = gray
 # Release resources
 endthread=True
 cap.release()
