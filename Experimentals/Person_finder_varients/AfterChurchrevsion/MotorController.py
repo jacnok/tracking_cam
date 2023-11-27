@@ -50,20 +50,19 @@ class Mcontrol:
             self.L=0
             self.r=0
             self.oldval=[0,0,0,0]
-            self.Senitivity=255
             s=str(self.u)+','+str(self.d)+','+str(self.L)+','+str(self.r)+','+str(self.zoom)+','+str(self.Senitivity)+','+str(self.reset)+';'
             print(s)
             if self.connected:
                 if self.Serial.is_open:
                     self.Serial.write(s.encode('utf-8') + b'\n')
     def write(self):
-        
-        self.oldval=[self.u,self.d,self.L,self.r]
-        s=str(self.u)+','+str(self.d)+','+str(self.L)+','+str(self.r)+','+str(self.zoom)+','+str(self.Senitivity)+','+str(self.reset)+';'
-        print(s)
-        if self.connected:
-            if self.Serial.is_open:
-                self.Serial.write(s.encode('utf-8') + b'\n')
+        if self.oldval[0] is not self.u or self.oldval[2] is not self.L or self.oldval[1] is not self.d or self.oldval[3] is not self.r:
+            self.oldval=[self.u,self.d,self.L,self.r]
+            s=str(self.u)+','+str(self.d)+','+str(self.L)+','+str(self.r)+','+str(self.zoom)+','+str(self.Senitivity)+','+str(self.reset)+';'
+            print(s)
+            if self.connected:
+                if self.Serial.is_open:
+                    self.Serial.write(s.encode('utf-8') + b'\n')
     def close(self):
         if self.connected:
             if self.Serial.is_open:

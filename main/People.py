@@ -36,7 +36,7 @@ class Person:
                 self.tracking=False
             return success, bbox
         except:
-            print(frame.shape)
+            # print(frame.shape)
             return False,bbox
     def unpair(self):
         self.confidence=self.confidence-1
