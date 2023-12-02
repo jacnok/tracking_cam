@@ -14,7 +14,11 @@ def draw_boxes(frame, peaple):
             color=(0,255,0)
         else:
             color=(0,0,255)
-       
+        # if all([p.rect.x is not None, p.rect.y is not None, p.rect.ex is not None, p.rect.ey is not None]):
+        # Convert colordinates to integers
+        # start_point = (int(p.rect.x), int(p.rect.y))
+        # end_point = (int(p.rect.ex), int(p.rect.ey))
+
         # Draw the rectangle
         cv2.rectangle(frame, (int(p.rect.x), int(p.rect.y)), (int(p.rect.ex), int(p.rect.ey)), color, 2)
 
@@ -40,7 +44,7 @@ def track():
             if len(persons)>0:
                 
                 # persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()]
-                if(resized or not sizechange):
+                # if(resized):
                     
                     for person in persons:
                         if person.update(frame)[0]==False:
@@ -80,7 +84,7 @@ resized=False
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 profile_face=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
 upperbody=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_upperbody.xml')
-sizechange=True
+sizechange=False
 # try:
 #     cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
 #     sizechange=True
@@ -187,7 +191,7 @@ while True:
             
 
             # Detect faces on the smaller image
-            faces = face_cascade.detectMultiScale(gray, 1.5, 4, minSize=(30, 30))
+            faces = face_cascade.detectMultiScale(gray, 1.9, 4, minSize=(30, 30))
             if len(faces)==0 and persons==0:
                 faces= profile_face.detectMultiScale(gray, 1.1, 4, minSize=(30, 30))
             if endthread==True:
@@ -242,6 +246,7 @@ while True:
             #         else:
             #             draw_boxes(frame,person.bbox ,(0,0,255))
         draw_boxes(frame, [person for person in persons if person.bbox is not None])
+        print (face_detection_interval)
         # showbounds
         if showbounds==True:     
             cv2.line(frame, (boundx,0), (boundx,frame.shape[0]), (0,255,0), 2)  

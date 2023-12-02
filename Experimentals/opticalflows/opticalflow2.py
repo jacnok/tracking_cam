@@ -4,35 +4,48 @@ import numpy as np
 posx= 640/2
 posy=480/2
 # Function to draw arrows representing optical flow
-def draw_arrows(frame, flow, step=80):
+def draw_arrows(frame, flow, step=20):
     global posx,posy
+    size=100
     ax=np.mean(flow[..., 0])
     ay=np.mean(flow[..., 1])
     h, w = frame.shape[:2]
-    y, x = np.mgrid[step//2:h:step, step//2:w:step].reshape(2, -1).astype(int)
+    sx=posx-size
+    ex=posx+size
+    sy=posy-size
+    ey=posy+size
+    if(sx<0):
+        sx=0
+    if ex>w:
+        ex=w
+    if(sy<0):
+        sy=0
+    if ey>h:
+        ey=h
+    y, x = np.mgrid[sy:ey:step, sx:ex:step].reshape(2, -1).astype(int)
+    # y, x = np.mgrid[step//2:h:step, step//2:w:(size)].reshape(2, -1).astype(int)
     fx, fy = flow[y, x].T
 
     # Draw arrows
-    lines = np.vstack([x, y, x+(fx-ax)*fx, y+(fy-ay)*fy]).T.reshape(-1, 2, 2)
+    lines = np.vstack([x, y, x+(fx-ax)*np.absolute(fx), y+(fy-ay)*np.absolute(fy)]).T.reshape(-1, 2, 2)
     lines = np.int32(lines + 0.5)
     avgpx=0
     avgpy=0
     amount=0
     for (x1, y1), (x2, y2) in lines:
-        if (np.sqrt((x1-x2)**2 +(y1-y2)**2)>20):
+        cv2.arrowedLine(frame, (x1, y1), (x2, y2), (0, 255, 0), 1, tipLength=0.3)
+        if (np.sqrt((x1-x2)**2 +(y1-y2)**2)>9):
             avgpx+=x1
             avgpy+=y1
             amount+=1
             # cv2.circle(frame, (x1, y1), 5, (0, 0, 255), -1)
             cv2.arrowedLine(frame, (x1, y1), (x2, y2), (0, 255, 0), 1, tipLength=0.3)
-    if(amount>0):
+    if(amount):
         avgpx=(avgpx/amount)
         avgpy=(avgpy/amount)
         cv2.circle(frame, (int(avgpx),int(avgpy)), 5, (255, 0, 0), -1)
-        dist=((avgpy-posy)**2)+((avgpy-posy)**2)
-        if dist<5:
-            posx=(avgpx+posx)/2
-            posy=(avgpy+posy)/2
+        posx=(avgpx+posx)/2
+        posy=(avgpy+posy)/2
     cv2.circle(frame, (int(posx),int(posy)), 5, (0, 0, 255), -1)
 
 # Capture video from a file or camera
