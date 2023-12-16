@@ -13,7 +13,7 @@ class Person:
         self.tracker = self.tracker_types[tracker_type]()
         self.bbox = None
         self.rect=R.Rect()
-        self.confidence=30
+        self.confidence=0
         self.tracking=True
 
     def init(self, frame, bbox):
@@ -30,6 +30,8 @@ class Person:
             if success:
                 self.bbox = bbox
                 self.rect.set(bbox)
+                if self.confidence!= 30:
+                    self.confidence=self.confidence+1
                 # self.roi = cv2.resize(frame[self.rect.y:self.rect.ey, self.rect.x:self.rect.ex], (100, 200)) 
             else:
                 self.tracking=False
@@ -57,10 +59,11 @@ class Person:
         lines = np.int32(lines + 0.5)
         #  Averaging process
         distances = np.linalg.norm(lines[:, 0] - lines[:, 1], axis=1)
-        valid_lines = lines[distances > 10]
+        valid_lines = lines[distances > 20]
         if len(valid_lines) > 0:
             avg_position = np.mean(valid_lines[:, 0], axis=0)
             self.confidence=30
+            avg_position=((self.rect.cx+avg_position[0])/2,(self.rect.cy+avg_position[1])/2)
             self.rect.cx, self.rect.cy = avg_position
             self.rect.setC(self.rect.cx, self.rect.cy)
         

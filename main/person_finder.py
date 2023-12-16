@@ -182,18 +182,25 @@ while True:
         resized=True
         if frame_idx % face_detection_interval == 0 and detect:
             # Convert frame to grayscale
-
-            # Resize the frame for faster detection (scale down)
             
-
+            # Resize the frame for faster detection (scale down)
+            scale_factor=0.9
+            small_gray=cv2.resize(gray,None,fx=scale_factor,fy=scale_factor)
             # Detect faces on the smaller image
-            faces = face_cascade.detectMultiScale(gray, 1.5, 4, minSize=(30, 30))
-            if len(faces)==0 and persons==0:
-                faces= profile_face.detectMultiScale(gray, 1.1, 4, minSize=(30, 30))
+            if len(persons)==0:
+                faces = face_cascade.detectMultiScale(small_gray, 1.2, 4, minSize=(50, 50))
+                print("1.2")
+                if len(faces)==0:
+                    faces= profile_face.detectMultiScale(small_gray, 1.4, 4, minSize=(40, 40))
+                    print("1.4")
+            else:
+                faces = face_cascade.detectMultiScale(small_gray, 1.5, 4, minSize=(50, 50))
+                print("1.5")
             if endthread==True:
                 if len(persons)>0:
                     endthread=False
                     threading.Thread(target=track).start()
+            faces=[((int(x/scale_factor)),(int(y/scale_factor)),(int(w/scale_factor)),(int(h/scale_factor))) for (x,y,w,h) in faces]
 
             for (x, y, w, h) in faces:
                 
@@ -212,7 +219,7 @@ while True:
                         if matched:
                             person.rect.set( new_face)
                             person.recentPair=True
-                            if dist>2000 or not person.tracking:
+                            if dist>700 or not person.tracking:
                                 person.init(frame, new_face)
             
                 if not matched:
@@ -255,7 +262,7 @@ while True:
         if len(persons)>0:
             if (selected+1)>len(persons):
                 selected=0
-            # trackmovment(persons[selected].rect,frame,boundx,boundy)/////////////////////////////////////////////////////to move
+            trackmovment(persons[selected].rect,frame,boundx,boundy)
         # Process face images to display at the bottom panel
         max_faces = frame.shape[1] // 100
         bottom_panel = np.zeros((200, frame.shape[1], 3), dtype="uint8")
@@ -269,6 +276,27 @@ while True:
 
         frame = np.vstack((frame, bottom_panel))
         # Display the frame
+        side_panel = np.zeros((frame.shape[0], 250, 3), dtype="uint8")
+       
+        texts=["Press 'e' key to enable",
+               "and disable face",
+               "recogonition",
+               "Press WASD keys to move",
+               "Press 'g' or 'h' to", 
+               "adjust horizontal bounds",
+               "Press 'c' or 'v' to",
+               "adjust vertical bounds",
+               "Press 'z' or 'x' to",
+               "switch sqaures",
+                "Press 'r' to reset all",
+                "detected sqaures"
+        ]
+        font=cv2.FONT_HERSHEY_COMPLEX_SMALL
+        font_color=(255,255,255)
+        for i,text in enumerate(texts):
+            cv2.putText(side_panel,text,(10,20+(i*25)),font,.6,font_color,1)
+        # cv2.putText(side_panel,text1,(10,20),font,.5,font_color,1)
+        frame = np.hstack((frame, side_panel))
         cv2.imshow("My Face Detection Project", frame)
 
         # Break the loop if 'q' is pressed
