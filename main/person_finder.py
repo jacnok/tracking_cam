@@ -135,14 +135,14 @@ def trackmovment(head,frame,boundx,boundy):
             else:
                 mc.d=0
                 mc.u=0
-            if (head.w<(frame.shape[1]/5)):
-                mc.zoom=1
-                movment=True
-            elif (head.w>(frame.shape[1]/1.5)):
-                mc.zoom=-1
-                movment=True
-            else:
-                mc.zoom=0
+            # if (head.w<(frame.shape[1]/5)):
+            #     mc.zoom=1
+            #     movment=True
+            # elif (head.w>(frame.shape[1]/1.5)):
+            #     mc.zoom=-1
+            #     movment=True
+            # else:
+            #     mc.zoom=0
             
             if movment==False:
                 mc.none()
