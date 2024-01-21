@@ -102,12 +102,22 @@ def trackmovment(head,frame,boundx,boundy):
     if detect:
         if key_held==False:
             if (head.x<boundx):
-                mc.Senitivity=abs((head.ex-(boundx)))
+                sensitiv=abs((head.x-boundx)/head.w)*14
+                if sensitiv>14:
+                    sensitiv=14
+                elif sensitiv<1:
+                    sensitiv=1
+                mc.Senitivity=sensitiv
                 cv2.line(frame, (boundx,0), (boundx,frame.shape[0]), (0,255,0), 2)
                 mc.L=1
                 movment=True
             elif (head.ex>frame.shape[1]-boundx):
-                mc.Senitivity=abs((head.ex-(frame.shape[1]-boundx)))
+                sensitiv=abs((head.ex-(frame.shape[1]-boundx))/head.w)*14
+                if sensitiv>14:
+                    sensitiv=14
+                elif sensitiv<1:
+                    sensitiv=1
+                mc.Senitivity=sensitiv
                 cv2.line(frame, (frame.shape[1]-boundx,0), (frame.shape[1]-boundx,frame.shape[0]), (0,255,0), 2)
                 mc.r=1
                 movment=True
@@ -125,6 +135,14 @@ def trackmovment(head,frame,boundx,boundy):
             else:
                 mc.d=0
                 mc.u=0
+            if (head.w<(frame.shape[1]/5)):
+                mc.zoom=1
+                movment=True
+            elif (head.w>(frame.shape[1]/1.5)):
+                mc.zoom=-1
+                movment=True
+            else:
+                mc.zoom=0
             
             if movment==False:
                 mc.none()
@@ -152,10 +170,10 @@ def controls(key_pressed):
         if(boundy>0):
             showbounds=True
             boundy-=25
-    if key_pressed=="z":
+    if key_pressed=="b":
         if selected>0 and len(persons)>1:
             selected-=1
-    elif key_pressed=="x":
+    elif key_pressed=="n":
         if (selected+1)<len(persons):
             selected+=1
     if key_pressed=="r":
@@ -282,11 +300,11 @@ while True:
                "and disable face",
                "recogonition",
                "Press WASD keys to move",
-               "Press 'g' or 'h' to", 
+               "Press 'f' or 'g' to", 
                "adjust horizontal bounds",
                "Press 'c' or 'v' to",
                "adjust vertical bounds",
-               "Press 'z' or 'x' to",
+               "Press 'b' or 'n' to",
                "switch sqaures",
                 "Press 'r' to reset all",
                 "detected sqaures"
