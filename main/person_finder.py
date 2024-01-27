@@ -5,6 +5,7 @@ import People as P
 from pynput import keyboard
 import MotorController as M
 import threading
+import time
 
 mc=M.Mcontrol()
 
@@ -24,7 +25,7 @@ def on_press(key):
     try:
         if key.char:  # Only consider printable keys
             key_pressed = key.char
-            if mc.keypressed(key_pressed)==False:
+            if mc.keypressed(key_pressed,key_held)==False:
                 controls(key_pressed)
                 key_held=True
     except AttributeError:
@@ -34,8 +35,8 @@ def track():
     global persons, frame, endthread,cap,resized,prev_gray, gray
     while not endthread:
         try:
-            # if not cap.isOpened():
-            #     break
+            if not cap.isOpened():
+                break
             calcflow=False
             if len(persons)>0:
                 
@@ -81,11 +82,12 @@ face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_fronta
 profile_face=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
 upperbody=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_upperbody.xml')
 sizechange=True
+presetcalled=False
 # try:
 #     cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
 #     sizechange=True
 # except:
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 persons = []
 frame_idx = 0
 face_detection_interval = 1  # Detect faces every 10 frames
@@ -97,27 +99,27 @@ frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 prev_gray = gray
 def trackmovment(head,frame,boundx,boundy):
-    global detect
+    global detect , key_held,mc
     movment=False
     if detect:
         if key_held==False:
             if (head.x<boundx):
-                sensitiv=abs((head.x-boundx)/head.w)*14
+                sensitiv=abs((head.x-boundx)/head.w)*18
                 if sensitiv>14:
                     sensitiv=14
                 elif sensitiv<1:
                     sensitiv=1
-                mc.Senitivity=sensitiv
+                mc.Senitivityx=int(sensitiv)
                 cv2.line(frame, (boundx,0), (boundx,frame.shape[0]), (0,255,0), 2)
                 mc.L=1
                 movment=True
             elif (head.ex>frame.shape[1]-boundx):
-                sensitiv=abs((head.ex-(frame.shape[1]-boundx))/head.w)*14
+                sensitiv=abs((head.ex-(frame.shape[1]-boundx))/head.w)*18
                 if sensitiv>14:
                     sensitiv=14
                 elif sensitiv<1:
                     sensitiv=1
-                mc.Senitivity=sensitiv
+                mc.Senitivityx=int(sensitiv)
                 cv2.line(frame, (frame.shape[1]-boundx,0), (frame.shape[1]-boundx,frame.shape[0]), (0,255,0), 2)
                 mc.r=1
                 movment=True
@@ -135,7 +137,7 @@ def trackmovment(head,frame,boundx,boundy):
             else:
                 mc.d=0
                 mc.u=0
-            # if (head.w<(frame.shape[1]/5)):
+            # if (head.w<(frame.shape[1]/8)):
             #     mc.zoom=1
             #     movment=True
             # elif (head.w>(frame.shape[1]/1.5)):
@@ -180,25 +182,31 @@ def controls(key_pressed):
         while len(persons)>0:
             for person in persons:
                 persons.remove(person)
+        mc.stopmove()
     if key_pressed=="e":
         if(detect):
             detect= False
         else:
             detect=True
         print(detect)
-    print(boundx)
-    print(boundy)
+    # print(boundx)
+    # print(boundy)
 
 while True:
     resized=False
     ret, frame = cap.read()
-
+    if presetcalled:
+        if detect==False:
+            if delay+5<time.time():
+                detect=True
+                presetcalled=False
     if ret:
         if sizechange:
             frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
+            frame = cv2.convertScaleAbs(frame, alpha=2, beta=0)# Adjust this value, >1 to increase contrast, 0-1 to decrease/to fix rahgggsism
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         resized=True
-        if frame_idx % face_detection_interval == 0 and detect:
+        if frame_idx % face_detection_interval == 0 and detect and not key_held:
             # Convert frame to grayscale
             
             # Resize the frame for faster detection (scale down)
@@ -206,14 +214,14 @@ while True:
             small_gray=cv2.resize(gray,None,fx=scale_factor,fy=scale_factor)
             # Detect faces on the smaller image
             if len(persons)==0:
-                faces = face_cascade.detectMultiScale(small_gray, 1.2, 4, minSize=(50, 50))
-                print("1.2")
+                faces = face_cascade.detectMultiScale(small_gray, 1.5, 4, minSize=(50, 50))
+                
                 if len(faces)==0:
                     faces= profile_face.detectMultiScale(small_gray, 1.4, 4, minSize=(40, 40))
-                    print("1.4")
+                    
             else:
                 faces = face_cascade.detectMultiScale(small_gray, 1.5, 4, minSize=(50, 50))
-                print("1.5")
+                
             if endthread==True:
                 if len(persons)>0:
                     endthread=False
@@ -242,7 +250,7 @@ while True:
             
                 if not matched:
                     old_len=len(persons)
-                    new_person = P.Person(tracker_type='CSRT')
+                    new_person = P.Person(tracker_type='KCF')
                     new_person.init(frame, new_face)
                     persons.append(new_person)
                     if old_len==0 and len(persons)>0:
@@ -281,7 +289,7 @@ while True:
             if (selected+1)>len(persons):
                 selected=0
             trackmovment(persons[selected].rect,frame,boundx,boundy)
-        # Process face images to display at the bottom panel
+        # Process face images to display at the bottom panelrdsd
         max_faces = frame.shape[1] // 100
         bottom_panel = np.zeros((200, frame.shape[1], 3), dtype="uint8")
         for i, person in enumerate(persons[:max_faces]):
@@ -299,7 +307,7 @@ while True:
         texts=["Press 'e' key to enable",
                "and disable face",
                "recogonition",
-               "Press WASD keys to move",
+               "Press WeSD keys to move",
                "Press 'f' or 'g' to", 
                "adjust horizontal bounds",
                "Press 'c' or 'v' to",
@@ -330,3 +338,15 @@ cap.release()
 cv2.destroyAllWindows()
 mc.close()
 listener.stop()
+
+
+def callpreset(preset):
+    global persons,delay,presetcalled,detect
+    while len(persons)>0:
+            for person in persons:
+                persons.remove(person)
+    delay=time.time()
+    mc.preset(preset)
+    presetcalled=True
+    detect=False    
+    pass

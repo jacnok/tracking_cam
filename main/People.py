@@ -70,7 +70,7 @@ class Person:
         
         if len(valid_lines) <=0:
             self.confidence=self.confidence-1
-            print(self.confidence)
+            # print(self.confidence)
         if self.confidence<=0:
             return True
         else: 

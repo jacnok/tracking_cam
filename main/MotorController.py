@@ -8,6 +8,11 @@ import time
 #############################################################################
 # Commands from https://f.hubspotusercontent20.net/hubfs/418770/PTZOptics%20Documentation/Misc/PTZOptics%20VISCA%20Commands.pdf
 
+def checkarray(array,array2):
+    for i, value in enumerate(array):
+        if value != array2[i]:
+            return True
+    return False
 def get_command_map():
     return  {
         "power_on"          : "8101040002FF",
@@ -34,6 +39,7 @@ def get_command_map():
         "zoom_tele"         : "8101040702FF",
         "zoom_wide"         : "8101040703FF"
     }
+
 
 def generate_static_command(command):
     return get_command_map()[command] 
@@ -134,11 +140,11 @@ class Mcontrol:
         self.d=0
         self.L=0
         self.r=0
-        self.Senitivity=255
+        self.Senitivityx=255
         self.reset=0
         self.zoom=0
         self.connected=False
-        self.oldval=[0,0,0,0] #u,d,L,r
+        self.oldval=[0,0,0,10] #u,d,L,r,z
         if len(ports)>0:
             self.Serial = serial.Serial(port.device, 115200)
             self.Serial.close() #it is always open on start for some reason
@@ -150,7 +156,7 @@ class Mcontrol:
                 
                 print("already connected")
             
-    def keypressed(self,keycode):
+    def keypressed(self,keycode,keyheld):
         valid=False
         if keycode== 'w':
             self.u=1
@@ -170,7 +176,9 @@ class Mcontrol:
         elif keycode== 'x':
             self.zoom=-1
             valid=True
-        self.write()
+        if valid and not keyheld:
+            self.Senitivityx=10
+            self.write()
         return valid
  
     def none(self):
@@ -179,8 +187,31 @@ class Mcontrol:
             self.d=0
             self.L=0
             self.r=0
-            self.oldval=[0,0,0,0]
-            self.Senitivity=255
+            self.oldval=[0,0,0,0,10]
+            self.Senitivityx=10
+            self.zoom=0
+            move,stop=generate_pan_relative_commands("pan_up", 8, 2)
+            data = bytes.fromhex(stop)
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+            s.connect(("192.168.20.203", 1259))
+            s.send(data)
+            print("stop moving")
+        if self.zoom!=0:
+            zoom=get_command_map()["zoom_stop"]
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+            s.connect(("192.168.20.203", 1259))
+            data = bytes.fromhex(zoom) 
+            s.send(data)
+            s.close()
+            self.zoom=0
+            print("stop zooming")
+    def stopmove(self):
+            self.u=0
+            self.d=0
+            self.L=0
+            self.r=0
+            self.oldval=[0,0,0,0,10]
+            self.Senitivityx=255
             self.zoom=0
             move,stop=generate_pan_relative_commands("pan_up", 8, 2)
             data = bytes.fromhex(stop)
@@ -191,63 +222,72 @@ class Mcontrol:
             data = bytes.fromhex(zoom) 
             s.send(data)
             s.close()
-            
+            print("Force stop")
     def write(self):
-        if self.zoom==0:
-            zoom=get_command_map()["zoom_stop"]
+        if self.zoom==-1:
+            zoom=get_command_map()["zoom_wide"]
+            print("zooming out")
         elif self.zoom==1:
             zoom=get_command_map()["zoom_tele"]
             print("zooming in")
-        else:
-            zoom=get_command_map()["zoom_wide"]
-        data = bytes.fromhex(zoom)
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-        s.connect(("192.168.20.203", 1259))
-        s.send(data)
-        s.close()
-        # move,stop=generate_pan_relative_commands("pan_up", 8, 2) #this is the stop command to stop previous commands
-        # data = bytes.fromhex(stop)
-        # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-        # s.connect(("192.168.20.203", 1259))
-        # s.send(data)
-        # s.close()
-        self.oldval=[self.u,self.d,self.L,self.r]
-        if self.u==1:
-            if self.L==1:
-                movecode,stop=generate_pan_relative_commands("pan_up_left", 8, 2)
-                data = bytes.fromhex(movecode)
-            elif self.r==1:
-                movecode,stop=generate_pan_relative_commands("pan_up_right", 8, 2)
-                data = bytes.fromhex(movecode)
-            else:
-                movecode,stop=generate_pan_relative_commands("pan_up", 8, 2)
-                data = bytes.fromhex(movecode)
-        elif self.d==1:
-            if self.L==1:
-                movecode,stop=generate_pan_relative_commands("pan_down_left", 8, 2)
-                data = bytes.fromhex(movecode)
-            elif self.r==1:
-                movecode,stop=generate_pan_relative_commands("pan_down_right", 8, 2)
-                data = bytes.fromhex(movecode)
-            else:
-                movecode,stop=generate_pan_relative_commands("pan_down", 8, 2)
-                data = bytes.fromhex(movecode)
-        else:
-            if self.L==1:
-                movecode,stop=generate_pan_relative_commands("pan_left", 8, 2)
-                data = bytes.fromhex(movecode)
-            elif self.r==1:
-                movecode,stop=generate_pan_relative_commands("pan_right", 8, 2)
-                data = bytes.fromhex(movecode)
-            else:
-                s,stop=generate_pan_relative_commands("pan_right", 10, 14)
-                data = bytes.fromhex(stop)
-        
-        if self.oldval[0]==1 or self.oldval[1]==1 or self.oldval[2]==1 or self.oldval[3]==1:#just in case only zoom is changed
+        if self.zoom!=0:
+            data = bytes.fromhex(zoom)
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
             s.connect(("192.168.20.203", 1259))
             s.send(data)
             s.close()
+
+        
+            
+        movement=[self.u,self.d,self.L,self.r,self.Senitivityx]
+        if checkarray(movement,self.oldval):
+            if self.u==1:
+                if self.L==1:
+                    movecode,stop=generate_pan_relative_commands("pan_up_left", self.Senitivityx, 5)
+                    data = bytes.fromhex(movecode)
+                elif self.r==1:
+                    movecode,stop=generate_pan_relative_commands("pan_up_right", self.Senitivityx, 5)
+                    data = bytes.fromhex(movecode)
+                else:
+                    movecode,stop=generate_pan_relative_commands("pan_up", self.Senitivityx, 5)
+                    data = bytes.fromhex(movecode)
+            elif self.d==1:
+                if self.L==1:
+                    movecode,stop=generate_pan_relative_commands("pan_down_left", self.Senitivityx, 5)
+                    data = bytes.fromhex(movecode)
+                elif self.r==1:
+                    movecode,stop=generate_pan_relative_commands("pan_down_right", self.Senitivityx, 5)
+                    data = bytes.fromhex(movecode)
+                else:
+                    movecode,stop=generate_pan_relative_commands("pan_down", self.Senitivityx, 5)
+                    data = bytes.fromhex(movecode)
+            else:
+                if self.L==1:
+                    movecode,stop=generate_pan_relative_commands("pan_left", self.Senitivityx, 5)
+                    data = bytes.fromhex(movecode)
+                elif self.r==1:
+                    movecode,stop=generate_pan_relative_commands("pan_right", self.Senitivityx, 5)
+                    data = bytes.fromhex(movecode)
+                else:
+                    s,stop=generate_pan_relative_commands("pan_right", 10, 14)
+                    data = bytes.fromhex(stop)
+            
+            self.oldval=[self.u,self.d,self.L,self.r,self.Senitivityx]
+            if self.oldval[0]==1 or self.oldval[1]==1 or self.oldval[2]==1 or self.oldval[3]==1:#just in case only zoom is changed
+                print("movement")
+                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+                s.connect(("192.168.20.203", 1259))
+                s.send(data)
+                s.close()
+    def preset(self,preset):
+        if preset<0 or preset>254:
+            raise Exception("Preset must be between zero and 254")
+        else:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+            s.connect(("192.168.20.203", 1259))
+            camera_command = generate_call_preset_command(preset)
+            print(f' calling preset {preset}')
+            execute_command(get_camera_map()["CAM5A"], camera_command, port=1259)
     def close(self):
         if self.connected:
             if self.Serial.is_open:
