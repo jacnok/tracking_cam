@@ -61,7 +61,7 @@ def track():
                                     person.innitt2(gray)
                                     calcflow = True
                             # lost,lines=person.unpair(flow,frame)
-                            lost=person.unpair(prev_gray,gray)
+                            lost=person.unpair2(prev_gray,gray)
                             if lost:
                                 persons.remove(person)
                                 print("got rid of him")
@@ -76,6 +76,30 @@ def track():
         
     prev_gray = gray.copy()
     endthread=True
+def track2():
+    global persons, frame, endthread,cap,resized,prev_gray, gray,lines
+    try:
+            calcflow=False
+            if len(persons)>0:
+                # persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()]
+               
+                    
+                    for person in persons:
+                        person.tracking=False
+
+                        if calcflow==False:
+                                    # flow = cv2.calcOpticalFlowFarneback(prev_gray, gray, None, 0.5, 1, 4, 1, 1, .3, 0)
+                                    person.innitt2(gray)
+                                    calcflow = True
+                            # lost,lines=person.unpair(flow,frame)
+                        
+                        lost=person.unpair2(prev_gray,gray)
+                        if lost:
+                            persons.remove(person)
+                            print("got rid of him")
+    except Exception as e:
+        print("error in track2")
+        print(e)
 
 
 def on_release(key):
@@ -121,7 +145,7 @@ prev_gray = gray
 def trackmovment(head,frame,boundx,boundy):
     global detect , key_held,mc
     movment=False
-    if detect:
+    if detect and False:
         if key_held==False:
             if (head.x<boundx):
                 sensitiv=abs((head.x-boundx)/head.w)*18

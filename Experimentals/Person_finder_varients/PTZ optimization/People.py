@@ -61,9 +61,65 @@ class Person:
         except:
             self.tracking=False
             return False,bbox
+    def unpair(self,flow,frame):
+        step=10
+        size = 150
+        h, w = flow.shape[:2]
+
+        # Optimized boundary calculations
+        sx, sy = max(self.rect.cx - size, 0), max(self.rect.cy - size, 0)
+        ex, ey = min(self.rect.cx + size, w), min(self.rect.cy + size, h)
+
+        # Grid calculation
+        y, x = np.mgrid[sy:ey:step, sx:ex:step].reshape(2, -1).astype(int)
+        fx, fy = flow[y, x].T
+        # get the average color at each grid point
+        target_color = np.array(self.color).reshape(1, 3)
+        colorpoints = frame[y, x]  # shape (N, 3)
+        color_diff = np.linalg.norm(colorpoints - target_color, axis=1) 
+        # print(colorpoints)
+        color_match_threshold = 100  # Define a threshold for color matching
+        # Adjust flow relative to average
+        lines = np.vstack([x, y, x + fx*np.abs(fx), y + fy*np.abs(fy)]).T.reshape(-1, 2, 2)
+        fx, fy = fx - np.mean(fx), fy - np.mean(fy)
+
+        lines = np.int32(lines + 0.5)
+        #  Averaging process
+        distances = np.linalg.norm(lines[:, 0] - lines[:, 1], axis=1)
+        valid_lines = lines[(distances > 20) & (color_diff < color_match_threshold)]
+        
+        # valid_lines = lines[(distances > 20)]
+        if len(valid_lines) > 0:
+            avg_position = np.mean(valid_lines[:, 0], axis=0)
+            self.confidence=+5
+            avg_position=((self.rect.cx+avg_position[0])/2,(self.rect.cy+avg_position[1])/2)
+            self.rect.cx, self.rect.cy = avg_position
+            self.rect.setC(self.rect.cx, self.rect.cy)
+        
+        if len(valid_lines) <=0:
+            self.confidence=self.confidence-1
+            # print(self.confidence)
+        # expeirmental
+            # if self.confidence<=20:
+            #     self.tracker=cv2.TrackerKCF_create()
+            #     self.tracker.init(frame, (self.rect.x,self.rect.y,self.rect.w,self.rect.h))
+            #     try:
+            #         self.roi = cv2.resize(frame[self.rect.y:self.rect.ey, self.rect.x:self.rect.ex], (100, 200))  # The resized face image
+            #     except Exception as e:
+            #         print(e)
+            #         print (self.rect.x,self.rect.y,self.rect.ex,self.rect.ey)    
+            #     self.tracking=True
+            #     #get the average color of the face
+            #     self.color=(np.mean(self.roi[...,0]),np.mean(self.roi[...,1]),np.mean(self.roi[...,2]))
+            #     self.bbox=None
+        
+        if self.confidence<=0:
+            return True, valid_lines
+        else: 
+            return False, valid_lines
     def get_image(self):
         return self.roi
-    def unpair(self,prev_gray,gray):
+    def unpair2(self,prev_gray,gray):
         if np.array_equal(prev_gray, gray):
             # self.confidence=self.confidence+1
             return False
