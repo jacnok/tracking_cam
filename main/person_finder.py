@@ -7,6 +7,9 @@ import MotorController as M
 import threading
 import time
 print(cv2.__version__)
+from flask import Flask,request
+
+app = Flask(__name__)
 
 mc=M.Mcontrol()
 alttracking=False
@@ -41,6 +44,10 @@ def on_press(key):
         pass
 endthread=True
 lines=[]
+
+
+
+
 def track():
     global persons, frame, endthread,cap,resized,prev_gray, gray,lines,alttracking
     while not endthread:
@@ -99,21 +106,49 @@ profile_face=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profilef
 upperbody=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_upperbody.xml')
 sizechange=True
 presetcalled=False
-try:
-    # cap = cv2.VideoCapture(0)
-    cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testlvl2.mp4")
-    # cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
-    sizechange=True
-except:
-    cap = cv2.VideoCapture(0)
-    sizechange=False
-# cap = cv2.VideoCapture(0)
+# try:
+#     # cap = cv2.VideoCapture(0)
+#     cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testlvl2.mp4")
+#     # cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
+#     sizechange=True
+# except:
+#     cap = cv2.VideoCapture(0)
+#     sizechange=False
+cap = cv2.VideoCapture(1)
 persons = []
 frame_idx = 0
 face_detection_interval = 1  # Detect faces every 10 frames
 box=R.Rect()
 selected=0
 
+def callpreset(preset):
+    global persons,delay,presetcalled,detect
+    while len(persons)>0:
+            for person in persons:
+                persons.remove(person)
+    delay=time.time()
+    mc.preset(preset)
+    presetcalled=True
+    print("preset called!!!")
+    detect=False    
+    pass
+
+@app.route('/callpreset', methods=['POST'])
+def handle_callpreset():
+    data = request.json
+    preset = data.get("preset")
+    if preset is not None:
+        # Run the callpreset function in a new thread to not block the Flask server
+        threading.Thread(target=callpreset, args=(preset,)).start()
+        return {"status": "success", "message": f"Preset {preset} called"}
+    else:
+        return {"status": "error", "message": "Missing preset parameter"}, 400
+def run_flask_app():
+    app.run(debug=False, port=5000)
+    time.sleep(1)
+# Start the Flask app in a separate thread
+flask_thread = threading.Thread(target=run_flask_app,daemon=True)
+flask_thread.start()
 ret, frame = cap.read()
 frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -212,6 +247,8 @@ def controls(key_pressed):
     if key_pressed=="t":
         alttracking= not alttracking
         print(alttracking)
+    if key_pressed=="p":
+        callpreset(2)
     # print(boundx)
     # print(boundy)
 
@@ -220,7 +257,7 @@ while True:
     ret, frame = cap.read()
     if presetcalled:
         if detect==False:
-            if delay+5<time.time():
+            if delay+2<time.time():
                 detect=True
                 presetcalled=False
     if ret:
@@ -249,7 +286,7 @@ while True:
                     threading.Thread(target=track).start()
             faces=[((int(x/scale_factor)),(int(y/scale_factor)),(int(w/scale_factor)),(int(h/scale_factor))) for (x,y,w,h) in faces]
             if len(faces)>0 and face_detection_interval>20:
-                faces = face_cascade.detectMultiScale(gray,1.1, 6, minSize=(50, 50))
+                faces = face_cascade.detectMultiScale(gray,1.2, 6, minSize=(50, 50))
                 print("big")
             for (x, y, w, h) in faces:
                 # cv2.rectangle(frame,(x-1,y-1),(x+w+1,y+h+1),(255,0,0),1)
@@ -360,15 +397,3 @@ cap.release()
 cv2.destroyAllWindows()
 mc.close()
 listener.stop()
-
-
-def callpreset(preset):
-    global persons,delay,presetcalled,detect
-    while len(persons)>0:
-            for person in persons:
-                persons.remove(person)
-    delay=time.time()
-    mc.preset(preset)
-    presetcalled=True
-    detect=False    
-    pass
