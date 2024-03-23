@@ -54,7 +54,7 @@ class Person:
                         else:
                             print("face")
                     self.confidence=self.confidence+1
-                self.roi = cv2.resize(frame[int(self.rect.y):int(self.rect.ey), int(self.rect.x):int(self.rect.ex)], (100, 200)) 
+                # self.roi = cv2.resize(frame[int(self.rect.y):int(self.rect.ey), int(self.rect.x):int(self.rect.ex)], (100, 200)) 
             else:
                 self.tracking=False
             return success, bbox
@@ -105,3 +105,4 @@ class Person:
         if self.prev_pts is not None:
                     self.prev_pts[:, :, 0] += self.rect.x  # Adjust x-coordinates of the points
                     self.prev_pts[:, :, 1] += self.rect.y
+    

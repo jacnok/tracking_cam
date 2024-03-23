@@ -9,6 +9,11 @@ import time
 print(cv2.__version__)
 from flask import Flask,request
 
+
+boundx=200
+boundy=125
+adjustbounds=True
+
 app = Flask(__name__)
 
 mc=M.Mcontrol()
@@ -122,13 +127,17 @@ box=R.Rect()
 selected=0
 
 def callpreset(preset):
-    global persons,delay,presetcalled,detect
+    global persons,delay,presetcalled,detect,boundx
     while len(persons)>0:
             for person in persons:
                 persons.remove(person)
     delay=time.time()
     mc.preset(preset)
     presetcalled=True
+    if preset==1:
+        boundx=125
+    else:
+        boundx=200
     print("preset called!!!")
     detect=False    
     pass
@@ -158,12 +167,25 @@ def trackmovment(head,frame,boundx,boundy):
     movment=False
     if detect:
         if key_held==False:
+            if (head.y<int(boundy-(boundy/2))):
+                cv2.line(frame, (0,int(boundy-(boundy/2))), (frame.shape[1],int(boundy-(boundy/2))), (0,255,0), 2)
+                mc.u=1
+                sensitiv=3
+                movment=True
+            elif(head.ey>frame.shape[0]-int(boundy+(boundy/2))):
+                cv2.line(frame, (0,frame.shape[0]-(int(boundy+(boundy/2)))), (frame.shape[1],frame.shape[0]-int(boundy+(boundy/2))), (0,255,0), 2)
+                mc.d=1
+                sensitiv=3
+                movment=True
+            else:
+                mc.d=0
+                mc.u=0
             if (head.x<boundx):
                 sensitiv=abs((head.x-boundx)/head.w)*18
                 if sensitiv>14:
                     sensitiv=14
-                elif sensitiv<1:
-                    sensitiv=1
+                elif sensitiv<4:
+                    sensitiv=3
                 mc.Senitivityx=int(sensitiv)
                 cv2.line(frame, (boundx,0), (boundx,frame.shape[0]), (0,255,0), 2)
                 mc.L=1
@@ -172,8 +194,8 @@ def trackmovment(head,frame,boundx,boundy):
                 sensitiv=abs((head.ex-(frame.shape[1]-boundx))/head.w)*18
                 if sensitiv>14:
                     sensitiv=14
-                elif sensitiv<1:
-                    sensitiv=1
+                elif sensitiv<4:
+                    sensitiv=3
                 mc.Senitivityx=int(sensitiv)
                 cv2.line(frame, (frame.shape[1]-boundx,0), (frame.shape[1]-boundx,frame.shape[0]), (0,255,0), 2)
                 mc.r=1
@@ -181,32 +203,30 @@ def trackmovment(head,frame,boundx,boundy):
             else:
                 mc.r=0
                 mc.L=0
-            if (head.y<int(boundy-(boundy/2))):
-                cv2.line(frame, (0,int(boundy-(boundy/2))), (frame.shape[1],int(boundy-(boundy/2))), (0,255,0), 2)
-                mc.u=1
+            if (head.w<(frame.shape[1]/8)): #zoom
+                mc.zoom=1
                 movment=True
-            elif(head.ey>frame.shape[0]-int(boundy+(boundy/2))):
-                cv2.line(frame, (0,frame.shape[0]-(int(boundy+(boundy/2)))), (frame.shape[1],frame.shape[0]-int(boundy+(boundy/2))), (0,255,0), 2)
-                mc.d=1
+            elif (head.w>(frame.shape[1]/1.5)):
+                mc.zoom=-1
                 movment=True
             else:
-                mc.d=0
-                mc.u=0
-            # if (head.w<(frame.shape[1]/8)):
-            #     mc.zoom=1
-            #     movment=True
-            # elif (head.w>(frame.shape[1]/1.5)):
-            #     mc.zoom=-1
-            #     movment=True
-            # else:
-            #     mc.zoom=0
-            
+                mc.zoom=0
+            if movment==False:  #micromovent
+                microturn=head.cx-(frame.shape[1]/2)
+                if microturn>15:
+                    mc.r=1
+                    mc.L=0
+                    mc.Senitivityx=1
+                    movment=True
+                elif microturn<-15:
+                    mc.L=1
+                    mc.r=0
+                    mc.Senitivityx=1
+                    movment=True
             if movment==False:
                 mc.none()
             else:
                 mc.write()
-boundx=200
-boundy=125
 showbounds=False
 def controls(key_pressed):
     global boundy,boundx,frame,showbounds,persons,selected, detect,alttracking
@@ -257,13 +277,14 @@ while True:
     ret, frame = cap.read()
     if presetcalled:
         if detect==False:
-            if delay+2<time.time():
+            if delay+1<time.time():
                 detect=True
                 presetcalled=False
+                face_detection_interval=1
     if ret:
         if sizechange:
             frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
-            # frame = cv2.convertScaleAbs(frame, alpha=2, beta=0)# Adjust this value, >1 to increase contrast, 0-1 to decrease/to fix rasism
+            frame = cv2.convertScaleAbs(frame, alpha=1, beta=0.2)# Adjust this value, >1 to increase contrast, 0-1 to decrease/to fix rasism
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         resized=True
         if frame_idx % face_detection_interval == 0 and detect and not key_held and not alttracking:
@@ -274,19 +295,24 @@ while True:
             small_gray=cv2.resize(gray,None,fx=scale_factor,fy=scale_factor)
             # Detect faces on the smaller image
             if len(persons)==0 or face_detection_interval<10:
-                faces = face_cascade.detectMultiScale(small_gray, 1.3, 7, minSize=(50, 50))
+                faces = face_cascade.detectMultiScale(small_gray, 1.3, 7, minSize=(100, 100))
                 
                 if len(faces)==0:
-                    faces= profile_face.detectMultiScale(small_gray, 1.5, 8, minSize=(40, 40))
+                    faces= profile_face.detectMultiScale(small_gray, 1.2, 4, minSize=(80, 80))
                     
                 
             if endthread==True:
                 if len(persons)>0:
                     endthread=False
                     threading.Thread(target=track).start()
+
+            #show a red box around the face
+            for (x, y, w, h) in faces:
+                cv2.rectangle(frame,(int(x/scale_factor),int(y/scale_factor)),(int((x+w)/scale_factor),int((y+h)/scale_factor)),(0,0,255),1)
+
             faces=[((int(x/scale_factor)),(int(y/scale_factor)),(int(w/scale_factor)),(int(h/scale_factor))) for (x,y,w,h) in faces]
             if len(faces)>0 and face_detection_interval>20:
-                faces = face_cascade.detectMultiScale(gray,1.2, 6, minSize=(50, 50))
+                faces = face_cascade.detectMultiScale(gray,1.9, 6, minSize=(100, 100))
                 print("big")
             for (x, y, w, h) in faces:
                 # cv2.rectangle(frame,(x-1,y-1),(x+w+1,y+h+1),(255,0,0),1)
@@ -304,17 +330,19 @@ while True:
                         if matched:
                             person.rect.set( new_face)
                             person.recentPair=True
-                            if dist>200 or not person.tracking:
+                            if dist>100 or not person.tracking:
                                 person.init(frame, new_face)
                     if person.rect.xmatch(box):
                         matched=True
                 if not matched:
                     old_len=len(persons)
+                    adjustbounds=True
                     new_person = P.Person(tracker_type='KCF')
                     new_person.init(frame, new_face)
                     persons.append(new_person)
                     if old_len==0 and len(persons)>0:
                         endthread=False
+                        
                         threading.Thread(target=track).start()
         for peaple in persons:
             if not peaple.tracking: #be sure to remove the false
@@ -345,6 +373,9 @@ while True:
         # Increment frame index
         frame_idx += 1
         if len(persons)>0:
+            if adjustbounds:
+                boundx=int(abs(persons[selected].rect.w*2-frame.shape[1])/2)
+                adjustbounds=False
             if (selected+1)>len(persons):
                 selected=0
             trackmovment(persons[selected].rect,frame,boundx,boundy)

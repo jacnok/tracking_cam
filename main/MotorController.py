@@ -211,7 +211,7 @@ class Mcontrol:
             self.L=0
             self.r=0
             self.oldval=[0,0,0,0,10]
-            self.Senitivityx=255
+            self.Senitivityx=1
             self.zoom=0
             move,stop=generate_pan_relative_commands("pan_up", 8, 2)
             data = bytes.fromhex(stop)
@@ -262,6 +262,13 @@ class Mcontrol:
                     movecode,stop=generate_pan_relative_commands("pan_down", self.Senitivityx, 5)
                     data = bytes.fromhex(movecode)
             else:
+                if self.oldval[0]==1 or self.oldval[1]==1:
+                    s,stop=generate_pan_relative_commands("pan_down", 10, 14)
+                    data = bytes.fromhex(stop)
+                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
+                    s.connect(("192.168.20.203", 1259))
+                    s.send(data)
+                    s.close()
                 if self.L==1:
                     movecode,stop=generate_pan_relative_commands("pan_left", self.Senitivityx, 5)
                     data = bytes.fromhex(movecode)

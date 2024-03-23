@@ -12,12 +12,12 @@ def call_preset(preset):
     data = {'preset': preset}
     response = requests.post(url, json=data)
     print(response.text)
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Run specific methods from the command line.')
-    parser.add_argument('-method', help='Method to run', required=True)
-    parser.add_argument("-preset_num", type=int, help=f"preset number 1-255")
-    
-    args = parser.parse_args()
+# if __name__ == "__main__":
+#     parser = argparse.ArgumentParser(description='Run specific methods from the command line.')
+#     parser.add_argument('-method', help='Method to run', required=True)
+#     parser.add_argument("-preset_num", type=int, help=f"preset number 1-255")
+#     args = parser.parse_args()
 
-    if args.method == 'call_preset':
-        call_preset(args.preset_num)
+#     if args.method == 'call_preset':
+#         call_preset(args.preset_num)
+call_preset(0)
