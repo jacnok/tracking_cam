@@ -5,9 +5,9 @@ import numpy as np
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 # Create a VideoCapture object to read from the webcam
-cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(0)
 # cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
-# cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testlvl2.mp4")
+cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testlvl2.mp4")
 
 
 # Initialize previous points and previous gray frame
@@ -33,7 +33,7 @@ while True:
         # Select the first face (assuming only one face is detected)
         if len(faces) > 0:
             (x, y, w, h) = faces[0]
-            roi =  cv2.resize(gray[y:y+h, x:x+w],(100,200))
+            roi =  cv2.resize(gray[y:y+h, x:x+w],(200,200))
             prev_pts = cv2.goodFeaturesToTrack(roi, maxCorners=100, qualityLevel=.01, minDistance=10)
             if prev_pts is not None:
                 prev_pts[:, :, 0] += x  # Adjust x-coordinates of the points

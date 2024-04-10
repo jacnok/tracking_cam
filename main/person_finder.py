@@ -54,12 +54,13 @@ lines=[]
 
 
 def track():
-    global persons, frame, endthread,cap,resized,prev_gray, gray,lines,alttracking
+    global persons, frame, endthread,cap,resized,prev_gray, gray,lines,alttracking,frame_idx
+    index=0
     while not endthread:
         try:
             if not cap.isOpened():
                 break
-            calcflow=False
+            
             if len(persons)>0:
                 # persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()]
                 if(resized or not sizechange):
@@ -68,15 +69,18 @@ def track():
                         if person.update(frame)[0]==False or alttracking:
                             if alttracking:
                                 person.tracking=False
-                            if calcflow==False:
+                            # if calcflow==False:
                                     # flow = cv2.calcOpticalFlowFarneback(prev_gray, gray, None, 0.5, 1, 4, 1, 1, .3, 0)
-                                    person.innitt2(gray)
-                                    calcflow = True
+                                    # person.innitt2(gray)
+                                    # calcflow = True
                             # lost,lines=person.unpair(flow,frame)
-                            lost=person.unpair(prev_gray,gray)
-                            if lost:
-                                persons.remove(person)
-                                print("got rid of him")
+                            if index is not frame_idx:
+                                lost=person.unpair(prev_gray,gray)
+
+                                if lost:
+                                    persons.remove(person)
+                                    print("got rid of him")
+                            index=frame_idx
             else:
                 mc.none()
                 break
@@ -111,15 +115,15 @@ profile_face=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profilef
 upperbody=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_upperbody.xml')
 sizechange=True
 presetcalled=False
-# try:
-#     # cap = cv2.VideoCapture(0)
-#     cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testlvl2.mp4")
-#     # cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
-#     sizechange=True
-# except:
-#     cap = cv2.VideoCapture(0)
-#     sizechange=False
-cap = cv2.VideoCapture(1)
+try:
+    # cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testlvl2.mp4")
+    # cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
+    sizechange=True
+except:
+    cap = cv2.VideoCapture(0)
+    sizechange=False
+# cap = cv2.VideoCapture(0)
 persons = []
 frame_idx = 0
 face_detection_interval = 1  # Detect faces every 10 frames
@@ -223,10 +227,10 @@ def trackmovment(head,frame,boundx,boundy):
                     mc.r=0
                     mc.Senitivityx=1
                     movment=True
-            if movment==False:
-                mc.none()
-            else:
-                mc.write()
+            # if movment==False:
+            #     mc.none()
+            # else:
+            #     mc.write()
 showbounds=False
 def controls(key_pressed):
     global boundy,boundx,frame,showbounds,persons,selected, detect,alttracking
@@ -257,7 +261,7 @@ def controls(key_pressed):
         while len(persons)>0:
             for person in persons:
                 persons.remove(person)
-        mc.stopmove()
+        # mc.stopmove()
     if key_pressed=="e":
         if(detect):
             detect= False
@@ -289,14 +293,13 @@ while True:
         resized=True
         if frame_idx % face_detection_interval == 0 and detect and not key_held and not alttracking:
             # Convert frame to grayscale
-            
+            print(face_detection_interval and len(persons))
             # Resize the frame for faster detection (scale down)
             scale_factor=0.9
             small_gray=cv2.resize(gray,None,fx=scale_factor,fy=scale_factor)
             # Detect faces on the smaller image
             if len(persons)==0 or face_detection_interval<10:
                 faces = face_cascade.detectMultiScale(small_gray, 1.3, 7, minSize=(100, 100))
-                
                 if len(faces)==0:
                     faces= profile_face.detectMultiScale(small_gray, 1.2, 4, minSize=(80, 80))
                     
@@ -337,21 +340,21 @@ while True:
                 if not matched:
                     old_len=len(persons)
                     adjustbounds=True
-                    new_person = P.Person(tracker_type='KCF')
+                    new_person = P.Person(tracker_type='CSRT')
                     new_person.init(frame, new_face)
                     persons.append(new_person)
                     if old_len==0 and len(persons)>0:
                         endthread=False
                         
                         threading.Thread(target=track).start()
+        if len(persons)==0:
+            face_detection_interval=1
+        else:
+            face_detection_interval=30
         for peaple in persons:
             if not peaple.tracking: #be sure to remove the false
                 face_detection_interval=2
                 break
-            elif len(persons)<0:
-                face_detection_interval=1
-            else:
-                face_detection_interval=30
         ## Update all trackers and remove the ones that have failed
         # persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()
         
@@ -359,9 +362,6 @@ while True:
         # for person in persons:
         #     if person is not None:
         #         if person.tracking:
-        #            draw_boxes(frame,person.bbox)
-            #         else:
-            #             draw_boxes(frame,person.bbox ,(0,0,255))
         draw_boxes(frame, [person for person in persons if person.bbox is not None])
         if showbounds==True:     
             cv2.line(frame, (boundx,0), (boundx,frame.shape[0]), (0,255,0), 2)  
