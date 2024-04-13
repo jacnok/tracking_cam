@@ -19,56 +19,57 @@ def feature_tracking():
 
     while True:
             # Only proceed if there is a frame to process
-        if shared_frame is None:
-            continue  # Skip the rest of the loop if no new frame is available
-            
+        if shared_frame is not None:
             # Copy the shared frame so we can work on it
-        gray = shared_frame.copy()
-        
-        
-        if shared_pts is not None and prev_gray is not None:
-                # Calculate optical flow
-                prev_pts = shared_pts.copy()
-                next_pts, status, _ = cv2.calcOpticalFlowPyrLK(prev_gray, gray, prev_pts, None, **lk_params)
-                
-                
-                if next_pts is not None and status is not None:
-                        good_new = next_pts[status == 1]
-                        if good_new.size > 2:
-                            avgx, avgy = np.average(good_new, axis=0)
-                            # Get rid of points that are too far from the average
-                            good_new = good_new[np.linalg.norm(good_new - np.array([avgx, avgy]), axis=1) < 100]
-                            # If there are less than 10 points, optionally get more points using goodFeaturesToTrack
-                        if len(good_new) < 40:
-                                
-                                roi = gray[int(avgy-100):int(avgy+100), int(avgx-100):int(avgx+100)]
-                                new_pts = cv2.goodFeaturesToTrack(roi, maxCorners=100, qualityLevel=0.01, minDistance=1, blockSize=3)
-                                    # good_new = good_new.reshape(-1, 1, 2)
-                                
-                                if new_pts is not None:
-                                    new_pts[:, :, 0] += avgx-100
-                                    new_pts[:, :, 1] += avgy-100
-                                    new_pts = new_pts.reshape(-1, 1, 2)
-                                    print(good_new)
-                                    # new_pts.reshape(-1, 2)
+            gray = shared_frame.copy()
+            
+            
+            if shared_pts is not None and prev_gray is not None:
+                    # Calculate optical flow
+                    prev_pts = shared_pts.copy()
+                    next_pts, status, _ = cv2.calcOpticalFlowPyrLK(prev_gray, gray, prev_pts, None, **lk_params)
+                    
+                    
+                    if next_pts is not None and status is not None:
+                            good_new = next_pts[status == 1]
+                            if good_new.size > 2:
+                                avgx, avgy = np.average(good_new, axis=0)
+                                # Get rid of points that are too far from the average
+                                good_new = good_new[np.linalg.norm(good_new - np.array([avgx, avgy]), axis=1) < 100]
+                                # If there are less than 10 points, optionally get more points using goodFeaturesToTrack
+                            if len(good_new) < 40:
                                     
-                                    # good_new = np.concatenate((good_new, new_pts), axis=0)
+                                    roi = gray[int(avgy-100):int(avgy+100), int(avgx-100):int(avgx+100)]
+                                    new_pts = cv2.goodFeaturesToTrack(roi, maxCorners=100, qualityLevel=0.01, minDistance=1, blockSize=3)
+                                        # good_new = good_new.reshape(-1, 1, 2)
                                     
-                                    new_pts = np.vstack((new_pts, good_new.reshape(-1, 1, 2)))
-                                    print(new_pts)
-                                    print("face")
-                                    shared_pts = new_pts
-                                    
-                                else:
-                                    print("no face")
-                                    # good_new = np.concatenate((good_new, new_pts), axis=0)
-                                    #flip the points to orginal array shape
-                                    # good_new = good_new.reshape(-1, 1, 2)
-                        else:
-                            shared_pts = good_new.reshape(-1, 1, 2) if good_new.size else None
+                                    if new_pts is not None:
+                                        new_pts[:, :, 0] += avgx-100
+                                        new_pts[:, :, 1] += avgy-100
+                                        new_pts = new_pts.reshape(-1, 1, 2)
+                                        print(good_new)
+                                        # new_pts.reshape(-1, 2)
+                                        
+                                        # good_new = np.concatenate((good_new, new_pts), axis=0)
+                                        
+                                        new_pts = np.vstack((new_pts, good_new.reshape(-1, 1, 2)))
+                                        print(new_pts)
+                                        print("face")
+                                        shared_pts = new_pts
+                                        
+                                    else:
+                                        print("no face")
+                                        # good_new = np.concatenate((good_new, new_pts), axis=0)
+                                        #flip the points to orginal array shape
+                                        # good_new = good_new.reshape(-1, 1, 2)
+                            else:
+                                shared_pts = good_new.reshape(-1, 1, 2) if good_new.size else None
 
 
-        prev_gray = gray.copy()
+            prev_gray = gray.copy()
+            shared_frame = None
+        else:
+            time.sleep(0.0001)
 
 # Start the feature tracking thread
 threading.Thread(target=feature_tracking, daemon=True).start()

@@ -51,46 +51,48 @@ endthread=True
 lines=[]
 
 
-
-
+shared_frame = None
 def track():
-    global persons, frame, endthread,cap,resized,prev_gray, gray,lines,alttracking,frame_idx
+    global persons, shared_frame, endthread,cap,resized,prev_gray, lines,alttracking
     index=0
     while not endthread:
-        try:
-            if not cap.isOpened():
-                break
-            
-            if len(persons)>0:
-                # persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()]
-                if(resized or not sizechange):
-                    
-                    for person in persons:
-                        if person.update(frame)[0]==False or alttracking:
-                            if alttracking:
-                                person.tracking=False
-                            # if calcflow==False:
-                                    # flow = cv2.calcOpticalFlowFarneback(prev_gray, gray, None, 0.5, 1, 4, 1, 1, .3, 0)
+        if shared_frame is None:
+                time.sleep(0.0001)
+        else:  
+            try:
+                if not cap.isOpened():
+                    break
+                if len(persons)>0:
+                    # persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()]
+                    if(resized or not sizechange):
+                        
+                        for person in persons:
+                            # shared_frame = cv2.cvtColor(shared_frame, cv2.COLOR_BGR2GRAY)
+                            if person.update(shared_frame)==False or alttracking:
+                                # if shared_frame is None:
+                                #     time.sleep(0.0001)
+                                #     continue 
+                                if alttracking:
+                                    person.tracking=False
                                     # person.innitt2(gray)
-                                    # calcflow = True
-                            # lost,lines=person.unpair(flow,frame)
-                            if index is not frame_idx:
+                                    
                                 lost=person.unpair(prev_gray,gray)
 
                                 if lost:
-                                    persons.remove(person)
-                                    print("got rid of him")
-                            index=frame_idx
-            else:
-                mc.none()
+                                        persons.remove(person)
+                                        print("got rid of him")
+                                
+                                
+                else:
+                    mc.none()
+                    break
+                if endthread:
+                    break    
+            except Exception as e:
+                print(e)
                 break
-            if endthread:
-                break
-        except Exception as e:
-            print(e)
-            break
-        
-    prev_gray = gray.copy()
+            prev_gray = gray.copy()
+            shared_frame = None
     endthread=True
 
 
@@ -117,8 +119,8 @@ sizechange=True
 presetcalled=False
 try:
     # cap = cv2.VideoCapture(0)
-    cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testlvl2.mp4")
-    # cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
+    # cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testlvl2.mp4")
+    cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
     sizechange=True
 except:
     cap = cv2.VideoCapture(0)
@@ -166,6 +168,7 @@ ret, frame = cap.read()
 frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 prev_gray = gray
+shared_frame = frame.copy()
 def trackmovment(head,frame,boundx,boundy):
     global detect , key_held,mc
     movment=False
@@ -290,10 +293,10 @@ while True:
             frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
             frame = cv2.convertScaleAbs(frame, alpha=1, beta=0.2)# Adjust this value, >1 to increase contrast, 0-1 to decrease/to fix rasism
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        shared_frame = frame.copy()
         resized=True
         if frame_idx % face_detection_interval == 0 and detect and not key_held and not alttracking:
             # Convert frame to grayscale
-            print(face_detection_interval and len(persons))
             # Resize the frame for faster detection (scale down)
             scale_factor=0.9
             small_gray=cv2.resize(gray,None,fx=scale_factor,fy=scale_factor)
@@ -314,11 +317,13 @@ while True:
                 cv2.rectangle(frame,(int(x/scale_factor),int(y/scale_factor)),(int((x+w)/scale_factor),int((y+h)/scale_factor)),(0,0,255),1)
 
             faces=[((int(x/scale_factor)),(int(y/scale_factor)),(int(w/scale_factor)),(int(h/scale_factor))) for (x,y,w,h) in faces]
-            if len(faces)>0 and face_detection_interval>20:
-                faces = face_cascade.detectMultiScale(gray,1.9, 6, minSize=(100, 100))
-                print("big")
+            if face_detection_interval>20 and len(persons)>0:
+                faces = face_cascade.detectMultiScale(gray,1.6, 6, minSize=(100, 100))
+                if len(faces)>0: 
+                    print("found "+str(len(faces)))
             for (x, y, w, h) in faces:
-                # cv2.rectangle(frame,(x-1,y-1),(x+w+1,y+h+1),(255,0,0),1)
+                cv2.rectangle(frame,(x-1,y-1),(x+w+1,y+h+1),(255,0,0),1)
+                
                 new_face = (x, y, w, h)
                 box.set(new_face)
                 matched=False
@@ -330,17 +335,19 @@ while True:
                             persons.remove(person)
                     else:
                         matched,dist=person.rect.overlap(box)
+                        print(dist)
                         if matched:
                             person.rect.set( new_face)
                             person.recentPair=True
-                            if dist>100 or not person.tracking:
+                            if dist<100 or not person.tracking:
+                                print("reduing")
                                 person.init(frame, new_face)
                     if person.rect.xmatch(box):
                         matched=True
                 if not matched:
                     old_len=len(persons)
                     adjustbounds=True
-                    new_person = P.Person(tracker_type='CSRT')
+                    new_person = P.Person(tracker_type='KCF')
                     new_person.init(frame, new_face)
                     persons.append(new_person)
                     if old_len==0 and len(persons)>0:
@@ -421,7 +428,6 @@ while True:
         cap = cv2.VideoCapture(0)
     if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-    prev_gray = gray.copy()
 # Release resources
 endthread=True
 cap.release()
