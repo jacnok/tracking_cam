@@ -145,6 +145,8 @@ class Mcontrol:
         self.zoom=0
         self.connected=False
         self.oldval=[0,0,0,10] #u,d,L,r,z
+        self.ip="192.168.20.203"
+        # self.ip="192.168.20.202"
         if len(ports)>0:
             self.Serial = serial.Serial(port.device, 115200)
             self.Serial.close() #it is always open on start for some reason
@@ -193,13 +195,13 @@ class Mcontrol:
             move,stop=generate_pan_relative_commands("pan_up", 8, 2)
             data = bytes.fromhex(stop)
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-            s.connect(("192.168.20.203", 1259))
+            s.connect((self.ip, 1259))
             s.send(data)
             print("stop moving")
         if self.zoom!=0:
             zoom=get_command_map()["zoom_stop"]
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-            s.connect(("192.168.20.203", 1259))
+            s.connect((self.ip, 1259))
             data = bytes.fromhex(zoom) 
             s.send(data)
             s.close()
@@ -216,7 +218,7 @@ class Mcontrol:
             move,stop=generate_pan_relative_commands("pan_up", 8, 2)
             data = bytes.fromhex(stop)
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-            s.connect(("192.168.20.203", 1259))
+            s.connect((self.ip, 1259))
             s.send(data)
             zoom=get_command_map()["zoom_stop"]
             data = bytes.fromhex(zoom) 
@@ -233,7 +235,7 @@ class Mcontrol:
         if self.zoom!=0:
             data = bytes.fromhex(zoom)
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-            s.connect(("192.168.20.203", 1259))
+            s.connect((self.ip, 1259))
             s.send(data)
             s.close()
 
@@ -266,7 +268,7 @@ class Mcontrol:
                     s,stop=generate_pan_relative_commands("pan_down", 10, 14)
                     data = bytes.fromhex(stop)
                     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-                    s.connect(("192.168.20.203", 1259))
+                    s.connect((self.ip, 1259))
                     s.send(data)
                     s.close()
                 if self.L==1:
@@ -283,7 +285,7 @@ class Mcontrol:
             if self.oldval[0]==1 or self.oldval[1]==1 or self.oldval[2]==1 or self.oldval[3]==1:#just in case only zoom is changed
                 print("movement")
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-                s.connect(("192.168.20.203", 1259))
+                s.connect((self.ip, 1259))
                 s.send(data)
                 s.close()
     def preset(self,preset):
@@ -291,7 +293,7 @@ class Mcontrol:
             raise Exception("Preset must be between zero and 254")
         else:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
-            s.connect(("192.168.20.203", 1259))
+            s.connect((self.ip, 1259))
             camera_command = generate_call_preset_command(preset)
             print(f' calling preset {preset}')
             execute_command(get_camera_map()["CAM5A"], camera_command, port=1259)

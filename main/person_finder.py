@@ -13,7 +13,8 @@ from flask import Flask,request
 boundx=200
 boundy=125
 adjustbounds=True
-
+interupt=False
+ptzmode=False
 app = Flask(__name__)
 
 mc=M.Mcontrol()
@@ -38,13 +39,15 @@ def draw_boxes(frame, peaple):
 
 key_held=False
 def on_press(key):
-    global key_pressed, key_held
+    global key_pressed, key_held,interupt,delay
     try:
         if key.char:  # Only consider printable keys
             key_pressed = key.char
             if mc.keypressed(key_pressed,key_held)==False:
                 controls(key_pressed)
                 key_held=True
+            interupt=True
+            delay=time.time()
     except AttributeError:
         pass
 endthread=True
@@ -117,15 +120,15 @@ profile_face=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profilef
 upperbody=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_upperbody.xml')
 sizechange=True
 presetcalled=False
-try:
-    # cap = cv2.VideoCapture(0)
-    # cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testlvl2.mp4")
-    cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
-    sizechange=True
-except:
-    cap = cv2.VideoCapture(0)
-    sizechange=False
-# cap = cv2.VideoCapture(0)
+# try:
+#     # cap = cv2.VideoCapture(0)
+#     # cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testlvl2.mp4")
+#     # cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
+#     sizechange=True
+# except:
+#     cap = cv2.VideoCapture(0)
+#     sizechange=False
+cap = cv2.VideoCapture(0)
 persons = []
 frame_idx = 0
 face_detection_interval = 1  # Detect faces every 10 frames
@@ -141,20 +144,70 @@ def callpreset(preset):
     mc.preset(preset)
     presetcalled=True
     if preset==1:
-        boundx=125
+        boundx=100
     else:
-        boundx=200
+        boundx=175
     print("preset called!!!")
     detect=False    
     pass
-
+def stream_deck_command(command):
+    global mc,interupt,delay,persons,detect,boundx,boundy,showbounds
+    interupt=True
+    print(command)
+    delay=time.time()
+    if command=="up":
+        mc.u=1
+    elif command=="down":
+        mc.d=1
+    elif command=="left":
+        mc.L=1
+        mc.Senitivityx=10
+    elif command=="right":
+        mc.Senitivityx=10
+        mc.r=1
+    elif command=="stopmove":
+        mc.Senitivityx=2
+        mc.none()
+    elif command=="zoomin":
+        mc.zoom=1
+    elif command=="zoomout":
+        mc.zoom=-1
+    elif command=="reset":
+        while len(persons)>0:
+            for person in persons:
+                persons.remove(person)
+    elif command=="stop":
+        if(detect):
+            detect= False
+        else:
+            detect=True
+    if ptzmode:
+        mc.Senitivityx=1
+    mc.write()
+    if command=="boundsx+":
+        showbounds=True
+        boundx+=50
+    elif command=="boundsx-":
+        showbounds=True
+        boundx-=50
+    if command=="boundsy+":
+        showbounds=True
+        boundy+=50
+    elif command=="boundsy-":
+        showbounds=True
+        boundy-=50
 @app.route('/callpreset', methods=['POST'])
 def handle_callpreset():
     data = request.json
     preset = data.get("preset")
-    if preset is not None:
+    move = data.get("move")
+    print(move)
+    if preset is not None or move is not None:
         # Run the callpreset function in a new thread to not block the Flask server
-        threading.Thread(target=callpreset, args=(preset,)).start()
+        if preset is not None:
+            threading.Thread(target=callpreset, args=(preset,)).start()
+        elif move is not None:
+            threading.Thread(target=stream_deck_command,args=(move,)).start()
         return {"status": "success", "message": f"Preset {preset} called"}
     else:
         return {"status": "error", "message": "Missing preset parameter"}, 400
@@ -218,7 +271,7 @@ def trackmovment(head,frame,boundx,boundy):
                 movment=True
             else:
                 mc.zoom=0
-            if movment==False:  #micromovent
+            if movment==False and ptzmode ==False:  #micromovent
                 microturn=head.cx-(frame.shape[1]/2)
                 if microturn>15:
                     mc.r=1
@@ -230,10 +283,12 @@ def trackmovment(head,frame,boundx,boundy):
                     mc.r=0
                     mc.Senitivityx=1
                     movment=True
-            # if movment==False:
-            #     mc.none()
-            # else:
-            #     mc.write()
+            if movment==False:
+                mc.none()
+            else:
+                if ptzmode:
+                    mc.Senitivityx=1
+                mc.write()
 showbounds=False
 def controls(key_pressed):
     global boundy,boundx,frame,showbounds,persons,selected, detect,alttracking
@@ -274,8 +329,7 @@ def controls(key_pressed):
     if key_pressed=="t":
         alttracking= not alttracking
         print(alttracking)
-    if key_pressed=="p":
-        callpreset(2)
+    
     # print(boundx)
     # print(boundy)
 
@@ -305,7 +359,7 @@ while True:
                 faces = face_cascade.detectMultiScale(small_gray, 1.3, 7, minSize=(100, 100))
                 if len(faces)==0:
                     faces= profile_face.detectMultiScale(small_gray, 1.2, 4, minSize=(80, 80))
-                    
+                   
                 
             if endthread==True:
                 if len(persons)>0:
@@ -318,11 +372,11 @@ while True:
 
             faces=[((int(x/scale_factor)),(int(y/scale_factor)),(int(w/scale_factor)),(int(h/scale_factor))) for (x,y,w,h) in faces]
             if face_detection_interval>20 and len(persons)>0:
-                faces = face_cascade.detectMultiScale(gray,1.6, 6, minSize=(100, 100))
+                faces = face_cascade.detectMultiScale(gray,1.5, 8, minSize=(100, 100))
                 if len(faces)>0: 
                     print("found "+str(len(faces)))
             for (x, y, w, h) in faces:
-                cv2.rectangle(frame,(x-1,y-1),(x+w+1,y+h+1),(255,0,0),1)
+                cv2.rectangle(frame,(x,y-1),(x+w+1,y+h+1),(255,0,0),10)
                 
                 new_face = (x, y, w, h)
                 box.set(new_face)
@@ -331,7 +385,6 @@ while True:
                 for person in persons[:]:
                     if matched:
                         if person.rect.overlap(box)[0]:
-                            print("deleting")
                             persons.remove(person)
                     else:
                         matched,dist=person.rect.overlap(box)
@@ -339,8 +392,9 @@ while True:
                         if matched:
                             person.rect.set( new_face)
                             person.recentPair=True
-                            if dist<100 or not person.tracking:
-                                print("reduing")
+                            
+                            if dist<10000 or not person.tracking:
+                                print("rescan")
                                 person.init(frame, new_face)
                     if person.rect.xmatch(box):
                         matched=True
@@ -380,12 +434,16 @@ while True:
         # Increment frame index
         frame_idx += 1
         if len(persons)>0:
-            if adjustbounds:
-                boundx=int(abs(persons[selected].rect.w*2-frame.shape[1])/2)
-                adjustbounds=False
+            # if adjustbounds:
+            #     boundx=int(abs(persons[selected].rect.w*2-frame.shape[1])/2)
+            #     adjustbounds=False
             if (selected+1)>len(persons):
                 selected=0
-            trackmovment(persons[selected].rect,frame,boundx,boundy)
+            if interupt==False:
+                trackmovment(persons[selected].rect,frame,boundx,boundy)
+            else:
+                if delay+.7<time.time():
+                    interupt=False
         # Process face images to display at the bottom panelrdsd
         max_faces = frame.shape[1] // 100
         bottom_panel = np.zeros((200, frame.shape[1], 3), dtype="uint8")
