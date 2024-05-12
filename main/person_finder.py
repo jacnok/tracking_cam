@@ -6,6 +6,8 @@ from pynput import keyboard
 import MotorController as M
 import threading
 import time
+from facenet_pytorch import MTCNN, InceptionResnetV1
+from PIL import Image
 print(cv2.__version__)
 from flask import Flask,request
 
@@ -122,8 +124,8 @@ sizechange=True
 presetcalled=False
 # try:
 #     # cap = cv2.VideoCapture(0)
-#     # cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testlvl2.mp4")
-#     # cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
+# cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testlvl2.mp4")
+# cap = cv2.VideoCapture(r"C:\Users\cherr\Documents\Processing\resoarces\testpaster.mp4")
 #     sizechange=True
 # except:
 #     cap = cv2.VideoCapture(0)
@@ -134,6 +136,14 @@ frame_idx = 0
 face_detection_interval = 1  # Detect faces every 10 frames
 box=R.Rect()
 selected=0
+nn=True
+scale_factor2 = 0.25  # Example: Reduce size by half
+
+# Create a face detection pipeline using MTCNN:
+mtcnn = MTCNN(image_size=160, margin=120, keep_all=True)
+
+# Create an inception resnet (in eval mode):
+resnet = InceptionResnetV1(pretrained='vggface2').eval()
 
 def callpreset(preset):
     global persons,delay,presetcalled,detect,boundx
@@ -350,6 +360,7 @@ while True:
         shared_frame = frame.copy()
         resized=True
         if frame_idx % face_detection_interval == 0 and detect and not key_held and not alttracking:
+            print (frame_idx)
             # Convert frame to grayscale
             # Resize the frame for faster detection (scale down)
             scale_factor=0.9
@@ -359,8 +370,6 @@ while True:
                 faces = face_cascade.detectMultiScale(small_gray, 1.3, 7, minSize=(100, 100))
                 if len(faces)==0:
                     faces= profile_face.detectMultiScale(small_gray, 1.2, 4, minSize=(80, 80))
-                   
-                
             if endthread==True:
                 if len(persons)>0:
                     endthread=False
@@ -375,6 +384,16 @@ while True:
                 faces = face_cascade.detectMultiScale(gray,1.5, 8, minSize=(100, 100))
                 if len(faces)>0: 
                     print("found "+str(len(faces)))
+            
+            if nn and len(faces)==0:
+                if face_detection_interval==2 or face_detection_interval>20:
+                        small_frame = cv2.resize(frame, None, fx=scale_factor2, fy=scale_factor2, interpolation=cv2.INTER_LINEAR)
+                        small_frame_rgb = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+                        boxes, _ = mtcnn.detect(small_frame_rgb)
+                        if boxes is not None:
+                            faces=[((int(x1/scale_factor2)),(int(y1/scale_factor2)),(int((x2-x1)/scale_factor2)),(int((y2-y1)/scale_factor2))) for (x1,y1,x2,y2) in boxes]
+                
+            
             for (x, y, w, h) in faces:
                 cv2.rectangle(frame,(x,y-1),(x+w+1,y+h+1),(255,0,0),10)
                 
@@ -411,7 +430,7 @@ while True:
         if len(persons)==0:
             face_detection_interval=1
         else:
-            face_detection_interval=30
+            face_detection_interval=80
         for peaple in persons:
             if not peaple.tracking: #be sure to remove the false
                 face_detection_interval=2
@@ -478,6 +497,8 @@ while True:
             cv2.putText(side_panel,text,(10,20+(i*25)),font,.6,font_color,1)
         # cv2.putText(side_panel,text1,(10,20),font,.5,font_color,1)
         frame = np.hstack((frame, side_panel))
+        if frame_idx>1000:
+            frame_idx=0
         cv2.imshow("My Face Detection Project", frame)
 
         # Break the loop if 'q' is pressed
