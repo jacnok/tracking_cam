@@ -166,21 +166,28 @@ def stream_deck_command(command):
     print(command)
     delay=time.time()
     if command=="up":
+        delay+=10
         mc.u=1
     elif command=="down":
+        delay+=10
         mc.d=1
     elif command=="left":
+        delay+=10
         mc.L=1
         mc.Senitivityx=10
     elif command=="right":
+        delay+=10
         mc.Senitivityx=10
         mc.r=1
     elif command=="stopmove":
         mc.Senitivityx=2
         mc.none()
+        interupt=False
     elif command=="zoomin":
+        delay+=10
         mc.zoom=1
     elif command=="zoomout":
+        delay+=10
         mc.zoom=-1
     elif command=="reset":
         while len(persons)>0:
@@ -196,16 +203,20 @@ def stream_deck_command(command):
     mc.write()
     if command=="boundsx+":
         showbounds=True
-        boundx+=50
+        boundx+=25
+        interupt=False
     elif command=="boundsx-":
         showbounds=True
-        boundx-=50
+        boundx-=25
+        interupt=False
     if command=="boundsy+":
         showbounds=True
-        boundy+=50
+        boundy+=25
+        interupt=False
     elif command=="boundsy-":
         showbounds=True
-        boundy-=50
+        boundy-=25
+        interupt=False
 @app.route('/callpreset', methods=['POST'])
 def handle_callpreset():
     data = request.json
@@ -237,13 +248,13 @@ def trackmovment(head,frame,boundx,boundy):
     movment=False
     if detect:
         if key_held==False:
-            if (head.y<int(boundy-(boundy/2))):
-                cv2.line(frame, (0,int(boundy-(boundy/2))), (frame.shape[1],int(boundy-(boundy/2))), (0,255,0), 2)
+            if (head.y<int(boundy-(3*boundy/4))):
+                cv2.line(frame, (0,int(boundy-(3*boundy/4))), (frame.shape[1],int(boundy-(3*boundy/4))), (0,255,0), 2)
                 mc.u=1
                 sensitiv=3
                 movment=True
-            elif(head.ey>frame.shape[0]-int(boundy+(boundy/2))):
-                cv2.line(frame, (0,frame.shape[0]-(int(boundy+(boundy/2)))), (frame.shape[1],frame.shape[0]-int(boundy+(boundy/2))), (0,255,0), 2)
+            elif(head.ey>frame.shape[0]-int(boundy+(3*boundy/4))):
+                cv2.line(frame, (0,frame.shape[0]-(int(boundy+(3*boundy/4)))), (frame.shape[1],frame.shape[0]-int(boundy+(3*boundy/4))), (0,255,0), 2)
                 mc.d=1
                 sensitiv=3
                 movment=True
@@ -251,7 +262,7 @@ def trackmovment(head,frame,boundx,boundy):
                 mc.d=0
                 mc.u=0
             if (head.x<boundx):
-                sensitiv=abs((head.x-boundx)/head.w)*18
+                sensitiv=int(abs((head.x-boundx)/head.w)*18)
                 if sensitiv>14:
                     sensitiv=14
                 elif sensitiv<4:
@@ -261,7 +272,7 @@ def trackmovment(head,frame,boundx,boundy):
                 mc.L=1
                 movment=True
             elif (head.ex>frame.shape[1]-boundx):
-                sensitiv=abs((head.ex-(frame.shape[1]-boundx))/head.w)*18
+                sensitiv=int(abs((head.ex-(frame.shape[1]-boundx))/head.w)*18)
                 if sensitiv>14:
                     sensitiv=14
                 elif sensitiv<4:
@@ -273,25 +284,27 @@ def trackmovment(head,frame,boundx,boundy):
             else:
                 mc.r=0
                 mc.L=0
-            if (head.w<(frame.shape[1]/8)): #zoom
-                mc.zoom=1
-                movment=True
-            elif (head.w>(frame.shape[1]/1.5)):
-                mc.zoom=-1
-                movment=True
-            else:
-                mc.zoom=0
+            # if (head.w<(frame.shape[1]/8)): #zoom
+            #     mc.zoom=1
+            #     movment=True
+            # elif (head.w>(frame.shape[1]/1.5)):
+            #     mc.zoom=-1
+            #     movment=True
+            # else:
+            #     mc.zoom=0
             if movment==False and ptzmode ==False:  #micromovent
                 microturn=head.cx-(frame.shape[1]/2)
+                if abs(microturn)>40:
+                    mc.Senitivityx=2
+                else:
+                    mc.Senitivityx=1
                 if microturn>15:
                     mc.r=1
                     mc.L=0
-                    mc.Senitivityx=1
                     movment=True
                 elif microturn<-15:
                     mc.L=1
                     mc.r=0
-                    mc.Senitivityx=1
                     movment=True
             if movment==False:
                 mc.none()
@@ -348,19 +361,18 @@ while True:
     ret, frame = cap.read()
     if presetcalled:
         if detect==False:
-            if delay+1<time.time():
+            if delay+.9<time.time():
                 detect=True
                 presetcalled=False
                 face_detection_interval=1
     if ret:
         if sizechange:
             frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
-            frame = cv2.convertScaleAbs(frame, alpha=1, beta=0.2)# Adjust this value, >1 to increase contrast, 0-1 to decrease/to fix rasism
+            frame = cv2.convertScaleAbs(frame, alpha=1, beta=0.9)# Adjust this value, >1 to increase contrast, 0-1 to decrease/to fix rasism
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         shared_frame = frame.copy()
         resized=True
         if frame_idx % face_detection_interval == 0 and detect and not key_held and not alttracking:
-            print (frame_idx)
             # Convert frame to grayscale
             # Resize the frame for faster detection (scale down)
             scale_factor=0.9
@@ -427,6 +439,12 @@ while True:
                         endthread=False
                         
                         threading.Thread(target=track).start()
+            if face_detection_interval==2:                
+                    for peaple in persons:
+                        if not peaple.tracking: #be sure to remove the false
+                            peaple.confidence-=1
+
+
         if len(persons)==0:
             face_detection_interval=1
         else:
@@ -446,8 +464,8 @@ while True:
         if showbounds==True:     
             cv2.line(frame, (boundx,0), (boundx,frame.shape[0]), (0,255,0), 2)  
             cv2.line(frame, (frame.shape[1]-boundx,0), (frame.shape[1]-boundx,frame.shape[0]), (0,255,0), 2)
-            cv2.line(frame, (0,int(boundy-(boundy/2))), (frame.shape[1],int(boundy-(boundy/2))), (0,255,0), 2)
-            cv2.line(frame, (0,frame.shape[0]-(int(boundy+(boundy/2)))), (frame.shape[1],frame.shape[0]-int(boundy+(boundy/2))), (0,255,0), 2)
+            cv2.line(frame, (0,int(boundy-(3*boundy/4))), (frame.shape[1],int(boundy-(3*boundy/4))), (0,255,0), 2)
+            cv2.line(frame, (0,frame.shape[0]-(int(boundy+(3*boundy/4)))), (frame.shape[1],frame.shape[0]-int(boundy+(3*boundy/4))), (0,255,0), 2)
             if frame_idx % 20 == 0:
                 showbounds=False
         # Increment frame index
@@ -458,18 +476,26 @@ while True:
             #     adjustbounds=False
             if (selected+1)>len(persons):
                 selected=0
+            
             if interupt==False:
                 trackmovment(persons[selected].rect,frame,boundx,boundy)
             else:
-                if delay+.7<time.time():
+                if delay+1<time.time():
                     interupt=False
         # Process face images to display at the bottom panelrdsd
         max_faces = frame.shape[1] // 100
         bottom_panel = np.zeros((200, frame.shape[1], 3), dtype="uint8")
-        for i, person in enumerate(persons[:max_faces]):
-            bottom_panel[:, i * 100:(i + 1) * 100] = person.get_image()
-            if i==selected:            
-                cv2.rectangle(bottom_panel,(i*100,0),((i + 1) * 100,200),(0,255,0),4)
+        try:
+            for i, person in enumerate(persons[:max_faces]):
+                if person.get_image() is not None:
+                    bottom_panel[:, i * 100:(i + 1) * 100] = person.get_image()
+                    if i==selected:            
+                        cv2.rectangle(bottom_panel,(i*100,0),((i + 1) * 100,200),(0,255,0),4)
+                else :
+                    persons.remove(person)
+                    bottom_panel[:, i * 100:(i + 1) * 100] = np.zeros((200, 100, 3), dtype="uint8")
+        except Exception as e:
+            print(e)            
 
         # Stack the main frame and the bottom panel
 

@@ -23,10 +23,11 @@ class Person:
         self.color=(0,0,0)
         self.prev_pts = None
         self.shirttrack=None
+        self.roi=None
 
     def init(self, frame, bbox):
         print("found him")
-        self.confidence=2
+        self.confidence=10
         self.prev_pts = None
         self.bbox = bbox
         self.rect.set(bbox)
@@ -79,7 +80,7 @@ class Person:
                 self.rect.setC(x_avg, y_avg)
                 good_new = good_new[np.linalg.norm(good_new - np.array([x_avg, y_avg]), axis=1) < 100]
                 self.prev_pts = good_new.reshape(-1, 1, 2) if good_new.size else None
-            if len(good_new) < 20:
+            if len(good_new) < 30:
                 self.confidence-=1
                 roi = gray[int(self.rect.y):int(self.rect.ey), int(self.rect.x):int(self.rect.ex)]
                 new_pts = cv2.goodFeaturesToTrack(roi, maxCorners=100, qualityLevel=0.01, minDistance=4, blockSize=7)
@@ -99,7 +100,7 @@ class Person:
              if self.prev_pts is not None:
                     self.prev_pts[:, :, 0] += self.rect.x  # Adjust x-coordinates of the points
                     self.prev_pts[:, :, 1] += self.rect.y
-        print(len(self.prev_pts))
+        
         if self.confidence<1:
             return True
         return False
