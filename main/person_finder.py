@@ -16,10 +16,12 @@ boundx=200
 boundy=125
 adjustbounds=True
 interupt=False
-ptzmode=False
+ptzmode=True
 app = Flask(__name__)
-
-mc=M.Mcontrol()
+if ptzmode:
+    mc=M.Mcontrol("192.168.20.202")
+else:
+    mc=M.Mcontrol()
 alttracking=False
 def draw_boxes(frame, peaple):
     for p in peaple:
@@ -113,8 +115,8 @@ def on_release(key):
         pass
 
 # Start listener for key press and release
-listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-listener.start()
+# listener = keyboard.Listener(on_press=on_press, on_release=on_release)// disable for now
+# listener.start()
 detect=True
 resized=False
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -355,7 +357,10 @@ def controls(key_pressed):
     
     # print(boundx)
     # print(boundy)
-
+screenwidth=1920
+cv2.namedWindow("My Face Detection Project",cv2.WINDOW_FULLSCREEN)
+cv2.setWindowProperty("My Face Detection Project", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+# cv2.moveWindow("My Face Detection Project", screenwidth, 0)
 while True:
     resized=False
     ret, frame = cap.read()
@@ -525,8 +530,21 @@ while True:
         frame = np.hstack((frame, side_panel))
         if frame_idx>1000:
             frame_idx=0
-        cv2.imshow("My Face Detection Project", frame)
+        
+        
+        frame = cv2.resize(frame, (2100,1080), interpolation=cv2.INTER_CUBIC)
 
+        # cv2.setWindowProperty("My Face Detection Project", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        
+        cv2.imshow("My Face Detection Project", frame)
+        cv2.moveWindow("My Face Detection Project",-1920 , -1000)
+        # cv2.resizeWindow ("My Face Detection Project",   cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        # ax = ("prop vs. reg: {}, {}").format(cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        # print(ax)
+        # print(cv2.WND_PROP_FULLSCREEN)
+        
+        # cv2.namedWindow("My Face Detection Project",cv2.WINDOW_FULLSCREEN)
+        # cv2.setWindowProperty("My Face Detection Project", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         # Break the loop if 'q' is pressed
     else:
         print("not ret")
@@ -538,4 +556,4 @@ endthread=True
 cap.release()
 cv2.destroyAllWindows()
 mc.close()
-listener.stop()
+# listener.stop()
