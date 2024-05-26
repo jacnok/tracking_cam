@@ -115,8 +115,9 @@ def on_release(key):
         pass
 
 # Start listener for key press and release
-# listener = keyboard.Listener(on_press=on_press, on_release=on_release)// disable for now
-# listener.start()
+listener = keyboard.Listener(on_press=on_press, on_release=on_release) # disable for now
+listener.start()
+
 detect=True
 resized=False
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -489,23 +490,44 @@ while True:
                     interupt=False
         # Process face images to display at the bottom panelrdsd
         max_faces = frame.shape[1] // 100
-        bottom_panel = np.zeros((200, frame.shape[1], 3), dtype="uint8")
+        
+        bottom_panel_null = np.zeros((80, frame.shape[1], 3), dtype="uint8")
+        
+        
+        side_panel_new = np.zeros((frame.shape[0], 100, 3), dtype="uint8")
+        
+        
         try:
             for i, person in enumerate(persons[:max_faces]):
                 if person.get_image() is not None:
-                    bottom_panel[:, i * 100:(i + 1) * 100] = person.get_image()
+                    side_panel_new[
+                                   (i) * 200 : (i + 1) * 200
+                                   ,:
+                                    
+                                   
+                                       ] = person.get_image()
+                    # print("new person added!")
+                    
                     if i==selected:            
-                        cv2.rectangle(bottom_panel,(i*100,0),((i + 1) * 100,200),(0,255,0),4)
+                        cv2.rectangle(side_panel_new,
+                                      
+                                      (0, (i) * 200),             # horizontal, start point at (0, 0), where (x, y) 
+                                      (100, (i + 1) * 200),           # vertical, start point at (0, 0), where (x, y)
+                                      (0, 255, 0),              # green
+                                      4)                        # stroke size
                 else :
                     persons.remove(person)
-                    bottom_panel[:, i * 100:(i + 1) * 100] = np.zeros((200, 100, 3), dtype="uint8")
+                    side_panel_new[:, i * 100:(i + 1) * 100] = np.zeros((200, 100, 3), dtype="uint8")
+                    
         except Exception as e:
             print(e)            
 
         # Stack the main frame and the bottom panel
 
 
-        frame = np.vstack((frame, bottom_panel))
+        # frame = np.vstack((bottom_panel_null, frame, bottom_panel_null))
+        
+        
         # Display the frame
         side_panel = np.zeros((frame.shape[0], 250, 3), dtype="uint8")
        
@@ -527,17 +549,30 @@ while True:
         for i,text in enumerate(texts):
             cv2.putText(side_panel,text,(10,20+(i*25)),font,.6,font_color,1)
         # cv2.putText(side_panel,text1,(10,20),font,.5,font_color,1)
-        frame = np.hstack((frame, side_panel))
+        
+        frame = np.hstack((frame, side_panel_new))
         if frame_idx>1000:
             frame_idx=0
         
+        # added debug screen sizes
+        church_small_screen_2 = [(2100,1080), -1920, -1000]
+        debug_screen_jacnok = [(1920,1200), 1920, -100]
         
-        frame = cv2.resize(frame, (2100,1080), interpolation=cv2.INTER_CUBIC)
+        # TODO: set frame_position back to church_small_screen_2[0] for prod
+        frame_position = debug_screen_jacnok[0]
+        
+        if frame is None or frame.size == 0:
+            raise ValueError("The frame is empty or not valid.")   
+        frame = cv2.resize(frame, frame_position, interpolation=cv2.INTER_LINEAR)
 
         # cv2.setWindowProperty("My Face Detection Project", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         
+        # TODO: set move_window_x and move_window_y back to church_small_screen_2[1] and church_small_screen_2[2]  for prod
+        move_window_x = debug_screen_jacnok[1]
+        move_window_y = debug_screen_jacnok[2]
+        
         cv2.imshow("My Face Detection Project", frame)
-        cv2.moveWindow("My Face Detection Project",-1920 , -1000)
+        cv2.moveWindow("My Face Detection Project", move_window_x, move_window_y)
         # cv2.resizeWindow ("My Face Detection Project",   cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         # ax = ("prop vs. reg: {}, {}").format(cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         # print(ax)
@@ -556,4 +591,5 @@ endthread=True
 cap.release()
 cv2.destroyAllWindows()
 mc.close()
-# listener.stop()
+
+listener.stop()
