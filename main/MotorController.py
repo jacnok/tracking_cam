@@ -1,5 +1,3 @@
-import serial
-import serial.tools.list_ports
 import socket
 import argparse
 import time
@@ -133,9 +131,6 @@ def main():
 
 class Mcontrol:
     def __init__(self,ip="192.168.20.203"):
-        ports = serial.tools.list_ports.comports()
-        for port in ports:
-            print(f"Device: {port.device}, Name: {port.name}, Description: {port.description}")
         self.u=0
         self.d=0
         self.L=0
@@ -151,16 +146,6 @@ class Mcontrol:
         else:
             self.Senitivityy=1
         # self.ip="192.168.20.202"
-        if len(ports)>0:
-            self.Serial = serial.Serial(port.device, 115200)
-            self.Serial.close() #it is always open on start for some reason
-            if not self.Serial.is_open:
-                self.Serial.open()
-                print("opened esp")
-                self.connected=True
-            else:
-                
-                print("already connected")
             
     def keypressed(self,keycode,keyheld):
         valid=False
@@ -307,7 +292,4 @@ class Mcontrol:
                 execute_command(get_camera_map()["CAM5A"], camera_command, port=1259)
             elif self.ip=="192.168.20.202":
                 execute_command(get_camera_map()["CAM5"], camera_command, port=1259)
-    def close(self):
-        if self.connected:
-            if self.Serial.is_open:
-                self.Serial.close()
+    

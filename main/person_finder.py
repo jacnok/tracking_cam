@@ -603,6 +603,6 @@ while True:
 endthread=True
 cap.release()
 cv2.destroyAllWindows()
-mc.close()
+
 
 # listener.stop()
