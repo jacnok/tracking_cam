@@ -1,4 +1,4 @@
-# tracking_cam
+# tracking_cam (codename: Gort)
 a collaborative effort to bring OpenCV to church
 
 ## Heads up...
