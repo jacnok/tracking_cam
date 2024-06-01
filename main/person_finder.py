@@ -13,7 +13,8 @@ from flask import Flask,request
 
 
 boundx=200
-boundy=125
+boundy=25
+delay=0 #cando / OPTIONAL -> use delay to slowdown searching for faces (when not in use)
 adjustbounds=True
 interupt=False
 ptzmode=True
@@ -115,8 +116,8 @@ def on_release(key):
         pass
 
 # Start listener for key press and release
-listener = keyboard.Listener(on_press=on_press, on_release=on_release) # disable for now
-listener.start()
+# listener = keyboard.Listener(on_press=on_press, on_release=on_release) # disable for now
+# listener.start()
 
 detect=True
 resized=False
@@ -249,72 +250,79 @@ shared_frame = frame.copy()
 def trackmovment(head,frame,boundx,boundy):
     global detect , key_held,mc
     movment=False
-    if detect:
-        if key_held==False:
-            if (head.y<int(boundy-(3*boundy/4))):
-                cv2.line(frame, (0,int(boundy-(3*boundy/4))), (frame.shape[1],int(boundy-(3*boundy/4))), (0,255,0), 2)
-                mc.u=1
-                sensitiv=3
-                movment=True
-            elif(head.ey>frame.shape[0]-int(boundy+(3*boundy/4))):
-                cv2.line(frame, (0,frame.shape[0]-(int(boundy+(3*boundy/4)))), (frame.shape[1],frame.shape[0]-int(boundy+(3*boundy/4))), (0,255,0), 2)
-                mc.d=1
-                sensitiv=3
-                movment=True
-            else:
-                mc.d=0
-                mc.u=0
-            if (head.x<boundx):
-                sensitiv=int(abs((head.x-boundx)/head.w)*18)
-                if sensitiv>14:
-                    sensitiv=14
-                elif sensitiv<4:
+    try:
+        if detect:
+            if key_held==False:
+                if (head.y<int(boundy-(3*boundy/4))):
+                    cv2.line(frame, (0,int(boundy-(3*boundy/4))), (frame.shape[1],int(boundy-(3*boundy/4))), (0,255,0), 2)
+                    mc.u=1
                     sensitiv=3
-                mc.Senitivityx=int(sensitiv)
-                cv2.line(frame, (boundx,0), (boundx,frame.shape[0]), (0,255,0), 2)
-                mc.L=1
-                movment=True
-            elif (head.ex>frame.shape[1]-boundx):
-                sensitiv=int(abs((head.ex-(frame.shape[1]-boundx))/head.w)*18)
-                if sensitiv>14:
-                    sensitiv=14
-                elif sensitiv<4:
+                    movment=True
+                elif(head.ey>frame.shape[0]-int(boundy+(3*boundy/4))):
+                    cv2.line(frame, (0,frame.shape[0]-(int(boundy+(3*boundy/4)))), (frame.shape[1],frame.shape[0]-int(boundy+(3*boundy/4))), (0,255,0), 2)
+                    mc.d=1
                     sensitiv=3
-                mc.Senitivityx=int(sensitiv)
-                cv2.line(frame, (frame.shape[1]-boundx,0), (frame.shape[1]-boundx,frame.shape[0]), (0,255,0), 2)
-                mc.r=1
-                movment=True
-            else:
-                mc.r=0
-                mc.L=0
-            # if (head.w<(frame.shape[1]/8)): #zoom
-            #     mc.zoom=1
-            #     movment=True
-            # elif (head.w>(frame.shape[1]/1.5)):
-            #     mc.zoom=-1
-            #     movment=True
-            # else:
-            #     mc.zoom=0
-            if movment==False and ptzmode ==False:  #micromovent
-                microturn=head.cx-(frame.shape[1]/2)
-                if abs(microturn)>40:
-                    mc.Senitivityx=2
+                    movment=True
                 else:
-                    mc.Senitivityx=1
-                if microturn>15:
-                    mc.r=1
-                    mc.L=0
-                    movment=True
-                elif microturn<-15:
+                    mc.d=0
+                    mc.u=0
+                if (head.x<boundx):
+                    sensitiv=int(abs((head.x-boundx)/head.w)*18)
+                    if sensitiv>14:
+                        sensitiv=14
+                    elif sensitiv<4:
+                        sensitiv=3
+                    if ptzmode:
+                        if sensitiv>12:
+                            sensitiv=2
+                    mc.Senitivityx=int(sensitiv)
+                    cv2.line(frame, (boundx,0), (boundx,frame.shape[0]), (0,255,0), 2)
                     mc.L=1
-                    mc.r=0
                     movment=True
-            if movment==False:
-                mc.none()
-            else:
-                if ptzmode:
-                    mc.Senitivityx=1
-                mc.write()
+                elif (head.ex>frame.shape[1]-boundx):
+                    sensitiv=int(abs((head.ex-(frame.shape[1]-boundx))/head.w)*18)
+                    if sensitiv>14:
+                        sensitiv=14
+                    elif sensitiv<4:
+                        sensitiv=3
+                    if ptzmode:
+                        if sensitiv>12:
+                            sensitiv=2
+                    mc.Senitivityx=int(sensitiv)
+                    cv2.line(frame, (frame.shape[1]-boundx,0), (frame.shape[1]-boundx,frame.shape[0]), (0,255,0), 2)
+                    mc.r=1
+                    movment=True
+                else:
+                    mc.r=0
+                    mc.L=0
+                # if (head.w<(frame.shape[1]/8)): #zoom
+                #     mc.zoom=1
+                #     movment=True
+                # elif (head.w>(frame.shape[1]/1.5)):
+                #     mc.zoom=-1
+                #     movment=True
+                # else:
+                #     mc.zoom=0
+                if movment==False and ptzmode ==False:  #micromovent
+                    microturn=head.cx-(frame.shape[1]/2)
+                    if abs(microturn)>40:
+                        mc.Senitivityx=2
+                    else:
+                        mc.Senitivityx=1
+                    if microturn>15:
+                        mc.r=1
+                        mc.L=0
+                        movment=True
+                    elif microturn<-15:
+                        mc.L=1
+                        mc.r=0
+                        movment=True
+                if movment==False:
+                    mc.none()
+                else:
+                    mc.write()
+    except Exception as e:
+        print(e)
 showbounds=False
 def controls(key_pressed):
     global boundy,boundx,frame,showbounds,persons,selected, detect,alttracking
@@ -475,6 +483,11 @@ while True:
             if frame_idx % 20 == 0:
                 showbounds=False
         # Increment frame index
+        font=cv2.FONT_HERSHEY_COMPLEX_SMALL        
+        text="Tracking off"
+        if  not detect or key_held:
+            cv2.putText(frame,text,(20,100),font,1,(0,0,255),2)
+        # Increment frame index
         frame_idx += 1
         if len(persons)>0:
             # if adjustbounds:
@@ -489,9 +502,9 @@ while True:
                 if delay+1<time.time():
                     interupt=False
         # Process face images to display at the bottom panelrdsd
-        max_faces = frame.shape[1] // 100
+        max_faces = frame.shape[0] // 200
         
-        bottom_panel_null = np.zeros((80, frame.shape[1], 3), dtype="uint8")
+        # bottom_panel_null = np.zeros((100, frame.shape[1], 3), dtype="uint8")
         
         
         side_panel_new = np.zeros((frame.shape[0], 100, 3), dtype="uint8")
@@ -500,12 +513,12 @@ while True:
         try:
             for i, person in enumerate(persons[:max_faces]):
                 if person.get_image() is not None:
-                    side_panel_new[
-                                   (i) * 200 : (i + 1) * 200
-                                   ,:
-                                    
-                                   
-                                       ] = person.get_image()
+                    person_image = person.get_image()
+                        # Ensure the image is resized to the expected shape (200, 100, 3)
+                    if person_image.shape != (200, 100, 3):
+                        person_image = cv2.resize(person_image, (100, 200))
+
+                    side_panel_new[(i) * 200 : (i + 1) * 200, :] = person_image
                     # print("new person added!")
                     
                     if i==selected:            
@@ -555,21 +568,21 @@ while True:
             frame_idx=0
         
         # added debug screen sizes
-        church_small_screen_2 = [(2100,1080), -1920, -1000]
-        debug_screen_jacnok = [(1920,1200), 1920, -100]
+        church_small_screen = [(2100,1080), -1920, -1000]
+        # debug_screen_jacnok = [(2100,1080), -1920, -1000]
         
         # TODO: set frame_position back to church_small_screen_2[0] for prod
-        frame_position = debug_screen_jacnok[0]
+        frame_size = church_small_screen[0]
         
         if frame is None or frame.size == 0:
             raise ValueError("The frame is empty or not valid.")   
-        frame = cv2.resize(frame, frame_position, interpolation=cv2.INTER_LINEAR)
+        frame = cv2.resize(frame, frame_size, interpolation=cv2.INTER_LINEAR)
 
         # cv2.setWindowProperty("My Face Detection Project", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         
         # TODO: set move_window_x and move_window_y back to church_small_screen_2[1] and church_small_screen_2[2]  for prod
-        move_window_x = debug_screen_jacnok[1]
-        move_window_y = debug_screen_jacnok[2]
+        move_window_x = church_small_screen[1]
+        move_window_y = church_small_screen[2]
         
         cv2.imshow("My Face Detection Project", frame)
         cv2.moveWindow("My Face Detection Project", move_window_x, move_window_y)
@@ -592,4 +605,4 @@ cap.release()
 cv2.destroyAllWindows()
 mc.close()
 
-listener.stop()
+# listener.stop()

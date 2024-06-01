@@ -231,7 +231,8 @@ class Mcontrol:
             print("Force stop")
     def write(self):
         if self.ip=="192.168.20.202":
-            self.Senitivityx=1           
+            if self.Senitivityx>2:
+                self.Senitivityx=1           
         if self.zoom==-1:
             zoom=get_command_map()["zoom_wide"]
             print("zooming out")
