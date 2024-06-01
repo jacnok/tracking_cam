@@ -3,6 +3,7 @@ a collaborative effort to bring OpenCV to church
 
 ## Heads up...
 - this project requires a video feed... for example, a webcam.
+    - on Mac, one way to check if your device counts as a video feed is to open up Photo Booth.
 - on Mac, switch all "pip" commands to "pip3"
 
 ## Dependencies
