@@ -1,5 +1,3 @@
-import serial
-import serial.tools.list_ports
 import socket
 import argparse
 import time
@@ -132,10 +130,7 @@ def main():
         execute_command(get_camera_map()[args.camera_name], camera_command, port=args.port)
 
 class Mcontrol:
-    def __init__(self):
-        ports = serial.tools.list_ports.comports()
-        for port in ports:
-            print(f"Device: {port.device}, Name: {port.name}, Description: {port.description}")
+    def __init__(self,ip="192.168.20.203"):
         self.u=0
         self.d=0
         self.L=0
@@ -145,18 +140,12 @@ class Mcontrol:
         self.zoom=0
         self.connected=False
         self.oldval=[0,0,0,10] #u,d,L,r,z
-        self.ip="192.168.20.203"
+        self.ip=ip
+        if ip=="192.168.20.203":
+            self.Senitivityy=5
+        else:
+            self.Senitivityy=1
         # self.ip="192.168.20.202"
-        if len(ports)>0:
-            self.Serial = serial.Serial(port.device, 115200)
-            self.Serial.close() #it is always open on start for some reason
-            if not self.Serial.is_open:
-                self.Serial.open()
-                print("opened esp")
-                self.connected=True
-            else:
-                
-                print("already connected")
             
     def keypressed(self,keycode,keyheld):
         valid=False
@@ -226,6 +215,9 @@ class Mcontrol:
             s.close()
             print("Force stop")
     def write(self):
+        if self.ip=="192.168.20.202":
+            if self.Senitivityx>2:
+                self.Senitivityx=1           
         if self.zoom==-1:
             zoom=get_command_map()["zoom_wide"]
             print("zooming out")
@@ -245,23 +237,23 @@ class Mcontrol:
         if checkarray(movement,self.oldval):
             if self.u==1:
                 if self.L==1:
-                    movecode,stop=generate_pan_relative_commands("pan_up_left", self.Senitivityx, 5)
+                    movecode,stop=generate_pan_relative_commands("pan_up_left", self.Senitivityx, self.Senitivityy)
                     data = bytes.fromhex(movecode)
                 elif self.r==1:
-                    movecode,stop=generate_pan_relative_commands("pan_up_right", self.Senitivityx, 5)
+                    movecode,stop=generate_pan_relative_commands("pan_up_right", self.Senitivityx, self.Senitivityy)
                     data = bytes.fromhex(movecode)
                 else:
-                    movecode,stop=generate_pan_relative_commands("pan_up", self.Senitivityx, 5)
+                    movecode,stop=generate_pan_relative_commands("pan_up", self.Senitivityx, self.Senitivityy)
                     data = bytes.fromhex(movecode)
             elif self.d==1:
                 if self.L==1:
-                    movecode,stop=generate_pan_relative_commands("pan_down_left", self.Senitivityx, 5)
+                    movecode,stop=generate_pan_relative_commands("pan_down_left", self.Senitivityx, self.Senitivityy)
                     data = bytes.fromhex(movecode)
                 elif self.r==1:
-                    movecode,stop=generate_pan_relative_commands("pan_down_right", self.Senitivityx, 5)
+                    movecode,stop=generate_pan_relative_commands("pan_down_right", self.Senitivityx, self.Senitivityy)
                     data = bytes.fromhex(movecode)
                 else:
-                    movecode,stop=generate_pan_relative_commands("pan_down", self.Senitivityx, 5)
+                    movecode,stop=generate_pan_relative_commands("pan_down", self.Senitivityx, self.Senitivityy)
                     data = bytes.fromhex(movecode)
             else:
                 if self.oldval[0]==1 or self.oldval[1]==1:
@@ -272,10 +264,10 @@ class Mcontrol:
                     s.send(data)
                     s.close()
                 if self.L==1:
-                    movecode,stop=generate_pan_relative_commands("pan_left", self.Senitivityx, 5)
+                    movecode,stop=generate_pan_relative_commands("pan_left", self.Senitivityx, self.Senitivityy)
                     data = bytes.fromhex(movecode)
                 elif self.r==1:
-                    movecode,stop=generate_pan_relative_commands("pan_right", self.Senitivityx, 5)
+                    movecode,stop=generate_pan_relative_commands("pan_right", self.Senitivityx, self.Senitivityy)
                     data = bytes.fromhex(movecode)
                 else:
                     s,stop=generate_pan_relative_commands("pan_right", 10, 14)
@@ -296,8 +288,8 @@ class Mcontrol:
             s.connect((self.ip, 1259))
             camera_command = generate_call_preset_command(preset)
             print(f' calling preset {preset}')
-            execute_command(get_camera_map()["CAM5A"], camera_command, port=1259)
-    def close(self):
-        if self.connected:
-            if self.Serial.is_open:
-                self.Serial.close()
+            if self.ip=="192.168.20.203":
+                execute_command(get_camera_map()["CAM5A"], camera_command, port=1259)
+            elif self.ip=="192.168.20.202":
+                execute_command(get_camera_map()["CAM5"], camera_command, port=1259)
+    
