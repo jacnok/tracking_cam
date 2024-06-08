@@ -143,6 +143,11 @@ selected=0
 nn=True
 scale_factor2 = 0.25  # Example: Reduce size by half
 
+screen_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+screen_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+cv2.namedWindow("GORT", cv2.WINDOW_NORMAL)
+cv2.setWindowProperty("GORT", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
 # Create a face detection pipeline using MTCNN:
 mtcnn = MTCNN(image_size=160, margin=120, keep_all=True)
 
@@ -567,33 +572,12 @@ while True:
         if frame_idx>1000:
             frame_idx=0
         
-        # added debug screen sizes
-        church_small_screen = [(2100,1080), -1920, -1000]
-        # debug_screen_jacnok = [(2100,1080), -1920, -1000]
         
-        # TODO: set frame_position back to church_small_screen_2[0] for prod
-        frame_size = church_small_screen[0]
         
         if frame is None or frame.size == 0:
-            raise ValueError("The frame is empty or not valid.")   
-        frame = cv2.resize(frame, frame_size, interpolation=cv2.INTER_LINEAR)
+            raise ValueError("The frame is empty or not valid.") 
+        cv2.imshow("GORT", frame)
 
-        # cv2.setWindowProperty("My Face Detection Project", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        
-        # TODO: set move_window_x and move_window_y back to church_small_screen_2[1] and church_small_screen_2[2]  for prod
-        move_window_x = church_small_screen[1]
-        move_window_y = church_small_screen[2]
-        
-        cv2.imshow("My Face Detection Project", frame)
-        cv2.moveWindow("My Face Detection Project", move_window_x, move_window_y)
-        # cv2.resizeWindow ("My Face Detection Project",   cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        # ax = ("prop vs. reg: {}, {}").format(cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        # print(ax)
-        # print(cv2.WND_PROP_FULLSCREEN)
-        
-        # cv2.namedWindow("My Face Detection Project",cv2.WINDOW_FULLSCREEN)
-        # cv2.setWindowProperty("My Face Detection Project", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        # Break the loop if 'q' is pressed
     else:
         print("not ret")
         cap = cv2.VideoCapture(0)
