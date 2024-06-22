@@ -1,0 +1,1738 @@
+4.8.1
+ * Serving Flask app 'person_finder'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [22/Jun/2024 10:06:12] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 10:06:13] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 10:06:14] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 10:06:14] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 10:06:15] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 10:06:15] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 10:06:16] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 10:06:18] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 10:06:19] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 10:06:22] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 10:06:23] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 10:06:23] "POST /callpreset HTTP/1.1" 200 -
+{'move': 'start'}
+start
+start
+{'move': 'left'}
+left
+left
+movement
+{'move': 'stopmove'}
+stopmove
+stopmove
+stop moving
+{'move': 'left'}
+left
+left
+movement
+{'move': 'stopmove'}
+stopmove
+stopmove
+stop moving
+{'move': 'left'}
+left
+left
+movement
+{'move': 'stopmove'}
+stopmove
+stopmove
+stop moving
+{'move': 'right'}
+right
+right
+movement
+found him
+377.0
+rescan
+found him
+{'move': 'stopmove'}
+stopmove
+stopmove
+stop moving
+movement
+movement
+movement
+movement
+384.22179279034026
+rescan
+found him
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+61824.5
+found him
+got rid of him
+{'move': 'left'}
+left
+left
+movement
+{'move': 'stopmove'}
+stopmove
+stopmove
+stop moving
+movement
+{'move': 'reset'}
+reset
+reset
+movement
+stop moving
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+709.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+41.0
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+59.796284162439406
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+54.5
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+159.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+6090.794433922507
+rescan
+found him
+movement
+movement
+3114.25
+rescan
+found him
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+4365.130021740682
+rescan
+found him
+240.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+1477.3392019097228
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+stop moving
+106.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+141.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+940.9240787858143
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+548.5
+rescan
+found him
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+39.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+9104.097234771121
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+stop moving
+3346.805437759729
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+37726.25
+found him
+66306.5
+4656.25
+rescan
+found him
+got rid of him
+45165.25
+found him
+31001.0
+711.25
+rescan
+found him
+20593.0
+612.0
+rescan
+found him
+15018.5
+1202.5
+rescan
+found him
+12363.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+62484.7359097423
+found him
+63348.367532056756
+movement
+65017.47356268484
+found him
+movement
+stop moving
+got rid of him
+movement
+16204.269802169874
+found him
+movement
+16266.704122833034
+1332.5
+rescan
+found him
+20705.34656184353
+1793.25
+rescan
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+357 -27 447 111
+stop moving
+21321.956439332163
+640.25
+rescan
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+366 -47 473 118
+27759.441150025523
+95720.0
+found him
+16417.04077827098
+74846.25
+582.25
+rescan
+found him
+23258.646269909164
+65.0
+rescan
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+369 -6 456 127
+got rid of him
+5244.5
+rescan
+found him
+61625.0
+31268.25
+7764.766503740568
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+3589.6831908868626
+rescan
+found him
+stop moving
+5294.25
+rescan
+found him
+1021.0
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+stop moving
+3442.0
+rescan
+found him
+34870.25
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+-17 204 69 313
+movement
+could not broadcast input array from shape (200,100,3) into shape (480,0,3)
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+145.77142563648522
+rescan
+found him
+2309.0
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+stop moving
+398.5
+rescan
+found him
+51208.0
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+36.5
+rescan
+found him
+813.25
+rescan
+found him
+8.0
+rescan
+found him
+1553.0
+rescan
+found him
+movement
+got rid of him
+movement
+movement
+199.90239620674402
+rescan
+found him
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+19120.25
+found him
+movement
+596.5
+rescan
+found him
+movement
+movement
+movement
+stop moving
+got rid of him
+2602.633322481299
+rescan
+found him
+movement
+1261.0
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+292.2445494388812
+rescan
+found him
+movement
+stop moving
+111.25
+rescan
+found him
+58861.25
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+202.25
+rescan
+found him
+movement
+2160.5
+rescan
+found him
+movement
+612.5
+rescan
+found him
+movement
+93.25
+rescan
+found him
+538.25
+rescan
+found him
+1220.5
+rescan
+found him
+movement
+2581.0
+rescan
+found him
+movement
+3981.25
+rescan
+found him
+stop moving
+1380.25
+rescan
+found him
+40783.25
+108444.64250782551
+found him
+got rid of him
+1062.5
+rescan
+found him
+37417.25
+788.0
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+102.5
+rescan
+found him
+movement
+384.25
+rescan
+found him
+movement
+stop moving
+movement
+274.05144682270475
+rescan
+found him
+got rid of him
+stop moving
+273.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+729.0
+rescan
+found him
+30577.0
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+666.25
+rescan
+found him
+35106.25
+3409.3160435901955
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+346.25
+rescan
+found him
+movement
+78.25
+rescan
+found him
+731.25
+rescan
+found him
+movement
+movement
+stop moving
+got rid of him
+1388.9991368586197
+rescan
+found him
+47525.0
+found him
+746.5
+rescan
+found him
+100.0
+rescan
+found him
+462.5
+rescan
+found him
+112.5
+rescan
+found him
+movement
+741.25
+rescan
+found him
+movement
+197.0
+rescan
+found him
+movement
+135.25
+rescan
+found him
+movement
+570.25
+rescan
+found him
+movement
+25514.0
+84939.22445256496
+found him
+81.25
+rescan
+found him
+movement
+54603.25
+101777.5159469042
+5124.5
+rescan
+found him
+3274.0
+rescan
+found him
+stop moving
+843.25
+rescan
+found him
+got rid of him
+758.5
+rescan
+found him
+31866.25
+703.25
+rescan
+found him
+movement
+movement
+movement
+94.25
+rescan
+found him
+movement
+movement
+477.0
+rescan
+found him
+movement
+movement
+813.25
+rescan
+found him
+movement
+2511.25
+rescan
+found him
+1560.5
+rescan
+found him
+movement
+movement
+708.25
+rescan
+found him
+stop moving
+2342.5
+rescan
+found him
+1285.25
+rescan
+found him
+movement
+44.5
+rescan
+found him
+got rid of him
+205.0
+rescan
+found him
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+1330.25
+rescan
+found him
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+46636.49001356424
+found him
+691.0057729966938
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+1168.6755073266686
+rescan
+found him
+1199.25
+rescan
+found him
+1106.5
+rescan
+found him
+354.25
+rescan
+found him
+42.25
+rescan
+found him
+1024.25
+rescan
+found him
+2092.25
+rescan
+found him
+movement
+5945.0
+rescan
+found him
+movement
+movement
+1399.25
+rescan
+found him
+movement
+got rid of him
+1225.0
+rescan
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+-5 52 113 221
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+474.5
+rescan
+found him
+31645.0
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+3132.584653683938
+rescan
+found him
+movement
+15735.25
+30117.17187112663
+10217.83999168058
+movement
+movement
+stop moving
+3452.3973091473454
+rescan
+found him
+59312.25
+30777.261657596566
+found him
+57174.5
+30660.25296763424
+144.25
+rescan
+found him
+22.5
+rescan
+found him
+got rid of him
+51966.5
+62.5
+rescan
+found him
+199.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+4625.0
+rescan
+found him
+movement
+1749.25
+rescan
+found him
+49203.25
+25741.459045016207
+found him
+movement
+397.0
+rescan
+found him
+movement
+28296.25
+35110.171943040565
+movement
+64008.5
+27548.306671723956
+stop moving
+67862.63960123993
+225901.0077314396
+254559.13413558085
+found him
+got rid of him
+48320.39784920891
+82667.71480477531
+257640.1746781834
+found him
+movement
+got rid of him
+76863.32771017781
+20761.0
+found him
+59159.909226398915
+48003.25
+6096.25
+rescan
+found him
+43853.67725343701
+42691.25
+156.5
+rescan
+found him
+60019.62906574318
+17357.0
+6211.25
+rescan
+found him
+57500.570771128405
+5817.25
+rescan
+found him
+51801.35930866585
+1724.5
+rescan
+found him
+movement
+44182.88078019861
+1060.0
+rescan
+found him
+stop moving
+got rid of him
+1394.0
+rescan
+found him
+movement
+1364.5
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+2256.5
+rescan
+found him
+movement
+movement
+movement
+movement
+stop moving
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+704.5
+rescan
+found him
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+34.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+17.2521269985009
+rescan
+found him
+772.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+234.0
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+stop moving
+movement
+movement
+153.0
+rescan
+found him
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+29.25
+rescan
+found him
+1.0
+rescan
+found him
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+3916.970750504406
+rescan
+found him
+movement
+movement
+movement
+movement
+stop moving
+211.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+4057.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+174.88534043100663
+rescan
+found him
+946.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+224.5
+rescan
+found him
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+965.0
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+812.5
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+86.5
+rescan
+found him
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+125.0
+rescan
+found him
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+718.25
+rescan
+found him
+movement
+movement
+movement
+movement
+stop moving
+3728.3587677115574
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+902.5
+rescan
+found him
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+3696.25
+rescan
+found him
+movement
+movement
+movement
+stop moving
+59806.88596639084
+60698.217545013176
+13959.687988738762
+161258.21785018896
+found him
+movement
+60573.29488176899
+14906.699377008248
+171945.19006914692
+160.25
+rescan
+found him
+201255.42071095854
+1584.25
+rescan
+found him
+8823.087764181197
+rescan
+found him
+2211.25
+rescan
+found him
+movement
+2729.0
+rescan
+found him
+stop moving
+1234.0
+rescan
+found him
+1560.5
+rescan
+found him
+movement
+stop moving
+61.0
+rescan
+found him
+movement
+movement
+44.5
+rescan
+found him
+stop moving
+got rid of him
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+found 1
+16.0
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+found 1
+16.0
+rescan
+found him
+movement
+stop moving
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+1074.5220481455326
+rescan
+found him
+stop moving
+53554.0
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+-7 118 83 243
+could not broadcast input array from shape (200,100,3) into shape (480,0,3)
+35931.25
+found him
+movement
+21492.25
+216.5
+rescan
+found him
+movement
+12800.25
+24946.45621091593
+found him
+79242.57718259562
+129608.0
+found him
+stop moving
+27339.116318123648
+3606.25
+rescan
+found him
+35227.034224898554
+335.25
+rescan
+found him
+93292.05329838488
+177780.25
+7085.744442248717
+found him
+movement
+67355.18099343148
+6288.25
+rescan
+found him
+77104.50582484249
+617.0
+rescan
+found him
+got rid of him
+movement
+7170.5
+rescan
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+-51 73 86 238
+movement
+got rid of him
+movement
+stop moving
+34199.285307664424
+got rid of him
+got rid of him
+found him
+movement
+72685.0
+found him
+stop moving
+66.25
+rescan
+found him
+7.25
+rescan
+found him
+got rid of him
+movement
+stop moving
+movement
+stop moving
+movement
+stop moving
+202.5
+rescan
+found him
+76.25
+rescan
+found him
+40.0
+rescan
+found him
+1.25
+rescan
+found him
+5096.0
+rescan
+found him
+2026.25
+rescan
+found him
+61.0
+rescan
+found him

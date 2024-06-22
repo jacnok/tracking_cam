@@ -1,0 +1,31 @@
+Info.plist file not found.
+4.8.1
+ * Serving Flask app 'person_finder'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [15/Jun/2024 18:19:26] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2024 18:19:27] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2024 18:19:34] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2024 18:19:36] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2024 18:19:36] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [15/Jun/2024 18:19:39] "POST /callpreset HTTP/1.1" 200 -
+{'move': 'start'}
+start
+start
+{'move': 'stop'}
+stop
+stop
+{'move': 'start'}
+start
+start
+{'move': 'stop'}
+stop
+stop
+{'move': 'start'}
+start
+start
+{'move': 'stop'}
+stop
+stop
