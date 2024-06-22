@@ -1,0 +1,15 @@
+OpenCV: not authorized to capture video (status 0), requesting...
+OpenCV: camera failed to properly initialize!
+Info.plist file not found.
+4.8.1
+ * Serving Flask app 'person_finder'
+ * Debug mode: off
+Traceback (most recent call last):
+  File "/Users/streamer/Documents/python_code/Gort/tracking_cam/main/person_finder.py", line 283, in <module>
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+[33mPress CTRL+C to quit[0m
+    frame = cv2.resize(frame, (640,480), interpolation=cv2.INTER_CUBIC)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+cv2.error: OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+

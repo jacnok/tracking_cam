@@ -119,7 +119,7 @@ def on_release(key):
 # listener = keyboard.Listener(on_press=on_press, on_release=on_release) # disable for now
 # listener.start()
 
-detect=True
+detect=False
 resized=False
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 profile_face=cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
@@ -145,8 +145,6 @@ scale_factor2 = 0.25  # Example: Reduce size by half
 
 screen_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 screen_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-cv2.namedWindow("GORT", cv2.WINDOW_NORMAL)
-cv2.setWindowProperty("GORT", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
 # Create a face detection pipeline using MTCNN:
 mtcnn = MTCNN(image_size=160, margin=120, keep_all=True)
@@ -202,11 +200,15 @@ def stream_deck_command(command):
         while len(persons)>0:
             for person in persons:
                 persons.remove(person)
-    elif command=="stop":
+    elif command=="toggle":
         if(detect):
             detect= False
         else:
             detect=True
+    elif command=="stop":
+        detect= False
+    elif command=="start":
+            detect=True   
     if ptzmode:
         mc.Senitivityx=1
     mc.write()
@@ -229,6 +231,7 @@ def stream_deck_command(command):
 @app.route('/callpreset', methods=['POST'])
 def handle_callpreset():
     data = request.json
+    print(data)
     preset = data.get("preset")
     move = data.get("move")
     print(move)
@@ -275,11 +278,15 @@ def trackmovment(head,frame,boundx,boundy):
                     sensitiv=int(abs((head.x-boundx)/head.w)*18)
                     if sensitiv>14:
                         sensitiv=14
-                    elif sensitiv<4:
-                        sensitiv=3
+                    # elif sensitiv<4:
+                    #     sensitiv=8
                     if ptzmode:
-                        if sensitiv>12:
+                        if sensitiv >13:
+                            sensitiv=4
+                        elif sensitiv>10:
                             sensitiv=2
+                        else:
+                            sensitiv=1
                     mc.Senitivityx=int(sensitiv)
                     cv2.line(frame, (boundx,0), (boundx,frame.shape[0]), (0,255,0), 2)
                     mc.L=1
@@ -288,11 +295,15 @@ def trackmovment(head,frame,boundx,boundy):
                     sensitiv=int(abs((head.ex-(frame.shape[1]-boundx))/head.w)*18)
                     if sensitiv>14:
                         sensitiv=14
-                    elif sensitiv<4:
-                        sensitiv=3
+                    # elif sensitiv<4:
+                    #     sensitiv=8
                     if ptzmode:
-                        if sensitiv>12:
+                        if sensitiv >13:
+                            sensitiv=4
+                        elif sensitiv>10:
                             sensitiv=2
+                        else:
+                            sensitiv=1
                     mc.Senitivityx=int(sensitiv)
                     cv2.line(frame, (frame.shape[1]-boundx,0), (frame.shape[1]-boundx,frame.shape[0]), (0,255,0), 2)
                     mc.r=1
@@ -491,7 +502,11 @@ while True:
         font=cv2.FONT_HERSHEY_COMPLEX_SMALL        
         text="Tracking off"
         if  not detect or key_held:
-            cv2.putText(frame,text,(20,100),font,1,(0,0,255),2)
+            cv2.putText(frame,text,(20,50),font,1,(0,255,0),1)
+        else:
+            text="Tracking on"
+            cv2.putText(frame,text,(20,50),font,1,(0,0,255),1)
+            
         # Increment frame index
         frame_idx += 1
         if len(persons)>0:
@@ -575,8 +590,10 @@ while True:
         
         
         if frame is None or frame.size == 0:
-            raise ValueError("The frame is empty or not valid.") 
+            raise ValueError("The frame is empty or not valid.")
+        frame=cv2.resize(frame,(2100,1080),interpolation=cv2.INTER_CUBIC) 
         cv2.imshow("GORT", frame)
+        cv2.moveWindow("GORT", 0, -50)
 
     else:
         print("not ret")

@@ -1,0 +1,1613 @@
+4.8.1
+ * Serving Flask app 'person_finder'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [22/Jun/2024 09:14:11] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:14:12] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:14:12] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:14:16] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:14:20] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:14:59] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:15:02] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:15:05] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:15:06] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:15:13] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:15:28] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:15:29] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:15:29] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:15:29] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:18:19] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:18:20] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:18:23] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:18:23] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:18:25] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:18:25] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:18:31] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:18:31] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:18:37] "POST /callpreset HTTP/1.1" 200 -
+{'move': 'start'}
+start
+start
+{'preset': 0}
+None
+ calling preset 0
+preset called!!!
+{'preset': 1}
+None
+ calling preset 1
+preset called!!!
+{'preset': 0}
+None
+ calling preset 0
+preset called!!!
+{'preset': 2}
+None
+ calling preset 2
+preset called!!!
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+84.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+1008.25
+rescan
+found him
+237.25
+rescan
+found him
+movement
+44565.02881763433
+movement
+{'move': 'stop'}
+stop
+stop
+movement
+got rid of him
+stop moving
+{'move': 'start'}
+start
+start
+{'move': 'stop'}
+stop
+stop
+{'move': 'start'}
+start
+start
+{'move': 'reset'}
+reset
+reset
+found him
+movement
+movement
+220.25
+rescan
+found him
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+{'move': 'right'}
+right
+right
+movement
+{'move': 'stopmove'}
+stopmove
+stopmove
+stop moving
+movement
+{'move': 'right'}
+right
+right
+movement
+{'move': 'stopmove'}
+stopmove
+stopmove
+stop moving
+7850.0
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+4763.979571545497
+rescan
+found him
+11486.39925679937
+found him
+104163.86707699485
+169457.0
+found him
+11774.358379485086
+274.25
+rescan
+found him
+91725.40803823271
+168855.25
+312.5
+rescan
+found him
+11585.426791284466
+16.0
+rescan
+found him
+76055.63836758514
+145096.25
+328.5
+rescan
+found him
+10404.875626496272
+68.5
+rescan
+found him
+62420.262694926
+121320.0
+256.25
+rescan
+found him
+10114.544250101782
+13.0
+rescan
+found him
+49453.73135501915
+102417.25
+414.25
+rescan
+found him
+9150.77523929649
+58.5
+rescan
+found him
+44323.9040715259
+90390.5
+102.25
+rescan
+found him
+8406.626407341333
+45.25
+rescan
+found him
+40923.35692732129
+84361.0
+65.25
+rescan
+found him
+36777.95959780761
+76534.25
+126.25
+rescan
+found him
+got rid of him
+71138.5
+0.25
+rescan
+found him
+53892.25
+35.10920615051873
+rescan
+found him
+11856.74325771723
+1433.8522022748366
+rescan
+found him
+got rid of him
+got rid of him
+found him
+movement
+movement
+movement
+stop moving
+301.25
+rescan
+found him
+389.25
+rescan
+found him
+180.0
+rescan
+found him
+1.25
+rescan
+found him
+58.25
+rescan
+found him
+961.25
+rescan
+found him
+61.25
+rescan
+found him
+200.25
+rescan
+found him
+61.0
+rescan
+found him
+20.5
+rescan
+found him
+40.0
+rescan
+found him
+89.0
+rescan
+found him
+160.25
+rescan
+found him
+46.25
+rescan
+found him
+20.25
+rescan
+found him
+14.5
+rescan
+found him
+120.5
+rescan
+found him
+473.74799371603876
+rescan
+found him
+74.0
+rescan
+found him
+11.25
+rescan
+found him
+146.25
+rescan
+found him
+185.0
+rescan
+found him
+348.5
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+211.25
+rescan
+found him
+241.0
+rescan
+found him
+8.0
+rescan
+found him
+41.0
+rescan
+found him
+54.5
+rescan
+found him
+76.25
+rescan
+found him
+490.5
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+36.25
+rescan
+found him
+12824.5
+movement
+movement
+movement
+movement
+stop moving
+got rid of him
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+55450.0
+19632.5
+rescan
+found him
+1891.25
+rescan
+found him
+got rid of him
+stop moving
+{'move': 'stop'}
+stop
+stop
+{'move': 'start'}
+start
+start
+found him
+movement
+{'move': 'right'}
+right
+right
+movement
+{'move': 'stopmove'}
+stopmove
+stopmove
+stop moving
+21.94399404176511
+rescan
+found him
+1.25
+rescan
+found him
+{'move': 'right'}
+right
+right
+movement
+{'move': 'stopmove'}
+stopmove
+stopmove
+stop moving
+movement
+912.5
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+1163.5953605184332
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+1041.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+2013.3193534077145
+rescan
+found him
+movement
+stop moving
+movement
+movement
+movement
+movement
+906.191343186656
+rescan
+found him
+movement
+movement
+movement
+{'move': 'stop'}
+stop
+stop
+movement
+{'move': 'start'}
+start
+start
+1298.940274486551
+rescan
+found him
+movement
+got rid of him
+stop moving
+{'preset': 1}
+None
+ calling preset 1
+preset called!!!
+found him
+13.0
+rescan
+found him
+92112.5
+found him
+156.5
+rescan
+found him
+139947.25
+24.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+36.25
+rescan
+found him
+1272.5
+rescan
+found him
+30.5
+rescan
+found him
+3.25
+rescan
+found him
+136.25
+rescan
+found him
+68.5
+rescan
+found him
+32.0
+rescan
+found him
+2.5
+rescan
+found him
+741.25
+rescan
+found him
+76.5
+rescan
+found him
+110.25
+rescan
+found him
+72.25
+rescan
+found him
+10.25
+rescan
+found him
+37.0
+rescan
+found him
+6.25
+rescan
+found him
+1081.25
+rescan
+found him
+37.25
+rescan
+found him
+340.0
+rescan
+found him
+361.25
+rescan
+found him
+78.5
+rescan
+found him
+movement
+got rid of him
+269.0
+rescan
+found him
+movement
+movement
+movement
+stop moving
+186.25
+rescan
+found him
+98646.25
+found him
+32.5
+rescan
+found him
+196.25
+rescan
+found him
+75852.5
+61.0
+rescan
+found him
+208.0
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+122091.09616889735
+422205.57137119235
+found him
+135272.39511929662
+419689.993170482
+142.25
+rescan
+found him
+140806.6039209005
+424611.7271514976
+102.25
+rescan
+found him
+5788.183159792097
+rescan
+found him
+got rid of him
+145389.25
+642.5
+rescan
+found him
+328.25
+rescan
+found him
+130969.0
+388.25
+rescan
+found him
+7.25
+rescan
+found him
+134780.5
+34.25
+rescan
+found him
+155049.25
+72.25
+rescan
+found him
+137408.5
+46.25
+rescan
+found him
+637.0
+rescan
+found him
+150678.25
+1656.25
+rescan
+found him
+370.0
+rescan
+found him
+173025.0
+461.25
+rescan
+found him
+177346.25
+16.25
+rescan
+found him
+230022.5
+1649.25
+rescan
+found him
+79.25
+rescan
+found him
+120.25
+rescan
+found him
+600.5
+rescan
+found him
+213.25
+rescan
+found him
+138938.5
+6031.25
+224206.25
+620.254046083428
+rescan
+found him
+194586.25
+678.25
+rescan
+found him
+214.25
+rescan
+found him
+1550.25
+rescan
+found him
+movement
+movement
+movement
+movement
+stop moving
+191.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+got rid of him
+got rid of him
+found him
+148.0
+rescan
+found him
+47776.25
+found him
+9332.491742886603
+rescan
+found him
+139846.25
+42.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+358.25
+rescan
+found him
+279.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+1851.25
+rescan
+found him
+252.5
+rescan
+found him
+1176.25
+rescan
+found him
+movement
+got rid of him
+1938.25
+rescan
+found him
+stop moving
+28226.5
+17082.5
+24598.25
+185924.0
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+-63 56 65 226
+could not broadcast input array from shape (200,100,3) into shape (480,0,3)
+22784.5
+19361.25
+20462.5
+17364.25
+14472.25
+25376.0
+23520.25
+173060.5
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+-64 95 91 292
+20064.25
+could not broadcast input array from shape (200,100,3) into shape (480,0,3)
+133002.25
+found him
+23570.0
+22962.25
+22502.5
+got rid of him
+20602.0
+18162.5
+24420.5
+29722.5
+19624.25
+29346.5
+20673.25
+22609.25
+27454.5
+31773.25
+33401.25
+16241.0
+59432.5
+found him
+24925.0
+18180.0
+17579.25
+15660.5
+13782.5
+got rid of him
+13992.5
+157213.25
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+-13 114 66 226
+could not broadcast input array from shape (200,100,3) into shape (480,0,3)
+131408.5
+found him
+21882.25
+71650.0
+2658.5
+rescan
+found him
+24386.0
+63043.25
+256.25
+rescan
+found him
+22805.0
+50464.25
+426.5
+rescan
+found him
+17426.0
+47911.25
+34.0
+rescan
+found him
+16452.5
+17601.25
+45896.0
+55.25
+rescan
+found him
+18500.0
+51610.0
+122.0
+rescan
+found him
+20961.25
+17597.0
+17391.25
+18629.0
+17868.5
+19805.0
+20548.25
+22948.0
+20402.5
+20414.5
+55944.5
+1604.3461804860272
+rescan
+found him
+17769.25
+64021.25
+183.25
+rescan
+found him
+24171.25
+80436.25
+414.5
+rescan
+found him
+22961.25
+109010.25
+1280.5
+rescan
+found him
+17956.25
+17320.25
+17797.0
+19625.0
+21041.0
+21247.25
+15921.0
+rescan
+found him
+movement
+movement
+9276.5
+rescan
+found him
+stop moving
+movement
+6805.0
+rescan
+found him
+stop moving
+14436.0
+5292.25
+rescan
+found him
+114050.0
+217179.4393409412
+found him
+3105.25
+rescan
+found him
+172019.25
+2.0
+rescan
+found him
+movement
+movement
+movement
+movement
+stop moving
+680.9901083970908
+rescan
+found him
+409.0
+rescan
+found him
+439.46566552785225
+rescan
+found him
+1516.5
+rescan
+found him
+496.25
+rescan
+found him
+1521.25
+rescan
+found him
+377.0
+rescan
+found him
+movement
+212.5
+rescan
+found him
+movement
+movement
+626.0
+rescan
+found him
+stop moving
+got rid of him
+16512.506058699684
+found him
+21444.02745076758
+1297.25
+rescan
+found him
+22922.10493813851
+430.25
+rescan
+found him
+26458.74351843563
+152.5
+rescan
+found him
+22513.75927204732
+198.25
+rescan
+found him
+23630.863816328347
+16.25
+rescan
+found him
+25112.473038082244
+12.25
+rescan
+found him
+got rid of him
+67.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+696.25
+rescan
+found him
+38.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+328.5
+rescan
+found him
+movement
+movement
+movement
+stop moving
+1521.3880983144045
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+1037.0430354422424
+rescan
+found him
+110452.0
+found him
+movement
+movement
+movement
+movement
+stop moving
+8543.28374983836
+rescan
+found him
+853.0
+rescan
+found him
+movement
+movement
+432.5
+rescan
+found him
+movement
+120.5
+rescan
+found him
+movement
+946.25
+rescan
+found him
+movement
+stop moving
+44281.25
+found him
+9508.25
+rescan
+found him
+9.0
+rescan
+found him
+21.25
+rescan
+found him
+36.0
+rescan
+found him
+68.0
+rescan
+found him
+20.5
+rescan
+found him
+67.25
+rescan
+found him
+got rid of him
+17.0
+rescan
+found him
+34.0
+rescan
+found him
+45.25
+rescan
+found him
+66.25
+rescan
+found him
+48.25
+rescan
+found him
+33688.0385475792
+found him
+32882.812949956395
+211.25
+rescan
+found him
+66249.25
+4972.5
+rescan
+found him
+8.0
+rescan
+found him
+272.25
+rescan
+found him
+99.25
+rescan
+found him
+36.0
+rescan
+found him
+57.25
+rescan
+found him
+76.25
+rescan
+found him
+34.0
+rescan
+found him
+38.25
+rescan
+found him
+18.5
+rescan
+found him
+5.0
+rescan
+found him
+got rid of him
+3.25
+rescan
+found him
+12.25
+rescan
+found him
+101.0
+rescan
+found him
+movement
+movement
+371311.91784343834
+found him
+368034.27467454015
+189.25
+rescan
+found him
+got rid of him
+movement
+330409.4038216183
+found him
+248681.40025106166
+3494.5
+rescan
+found him
+195218.68836751673
+1776.25
+rescan
+found him
+355930.5190865109
+39879.25
+found him
+142085.682416589
+2443.25
+rescan
+found him
+283127.65681234095
+42752.5
+2164.5
+rescan
+found him
+189300.91911092494
+20877.25
+6726.25
+72984.45567098353
+7913.0
+72786.5
+found him
+134049.3374153683
+17157.894183571683
+40453.222364098765
+20704.99159568106
+105101.15963269118
+3501.25
+rescan
+found him
+got rid of him
+17959.251546803862
+38646.84218401089
+113339.05933371489
+3324.5
+rescan
+found him
+stop moving
+18719.36483535357
+17510.37564629619
+16929.27105474868
+18228.390297479928
+17774.11497077928
+17637.799213323044
+17461.13006503228
+got rid of him
+got rid of him
+19787.528617773438
+movement
+17883.353412546217
+movement
+24730.0
+found him
+movement
+23611.25
+1096.25
+rescan
+found him
+got rid of him
+34686.5
+found him
+1849.25
+rescan
+found him
+stop moving
+44611.25
+1469.0
+rescan
+found him
+3072.5
+rescan
+found him
+202.25
+rescan
+found him
+101.0
+rescan
+found him
+379.25
+rescan
+found him
+18.5
+rescan
+found him
+102.5
+rescan
+found him
+101.0
+rescan
+found him
+21.25
+rescan
+found him
+1.0
+rescan
+found him
+90.5
+rescan
+found him
+got rid of him
+12.5
+rescan
+found him
+37352.396597072715
+found him
+28337.560619408265
+1142.5
+rescan
+found him
+30029.550286330516
+577.0
+rescan
+found him
+17223.7919641186
+17973.45634373743
+18649.974749514426
+movement
+movement
+16783.757908884494
+movement
+16294.832690345356
+movement
+17134.85791113251
+stop moving
+14537.133492962457
+got rid of him
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+90.0
+rescan
+found him
+movement
+movement
+movement
+stop moving
+movement
+stop moving
+7.25
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+651.25
+rescan
+found him
+movement
+movement
+4365.394883211935
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+414.5
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+2316.5
+rescan
+found him
+131204.25
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+366.25
+rescan
+found him
+282.5
+rescan
+found him
+193.0
+rescan
+found him
+got rid of him
+331.25
+rescan
+found him
+movement
+movement
+movement
+stop moving
+552.5
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+1073.0
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+stop moving
+1043.1319841789082
+rescan
+found him
+150420.25
+found him
+movement
+movement
+movement
+stop moving
+122217.25
+132.5
+rescan
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+-20 216 83 349
+84.5
+rescan
+found him
+18.724978846497834
+rescan
+found him
+110993.0
+81.0
+rescan
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+-18 222 82 345
+58906.25
+50285.25
+24.25
+rescan
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+-13 219 86 344
+41562.0
+1.25
+rescan
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+-4 212 98 343
+16.0
+rescan
+found him
+131742.5
+116.5
+rescan
+found him
+110.5
+rescan
+found him
+116037.0
+146.0
+rescan
+found him
+OpenCV(4.8.1) /Users/xperience/GHA-OpenCV-Python/_work/opencv-python/opencv-python/opencv/modules/imgproc/src/resize.cpp:4062: error: (-215:Assertion failed) !ssize.empty() in function 'resize'
+
+-5 220 90 336
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+284.5
+rescan
+found him
+6042.5
+rescan
+found him
+4894.25
+rescan
+found him
+155153.0
+383116.21170391014
+found him
+got rid of him
+1345.0
+rescan
+found him
+199052.5
+26.5
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+618.2620162526146
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+912.25
+rescan
+found him
+2006.4882849215064
+rescan
+found him
+movement
+movement
+movement
+stop moving
+1026.3423544217367
+rescan
+found him
+510.5
+rescan
+found him
+2.0
+rescan
+found him
+6.5
+rescan
+found him
+141.25
+rescan
+found him
+216.25
+rescan
+found him
+9.0
+rescan
+found him
+145.0
+rescan
+found him
+24.25
+rescan
+found him
+got rid of him
+4.25
+rescan
+found him
+2.5
+rescan
+found him
+24.25
+rescan
+found him
+267.25
+rescan
+found him
+202.5
+rescan
+found him
+254.25
+rescan
+found him
+2209.6453454990406
+rescan
+found him
+movement
+movement
+movement
+movement
+movement
+movement
+stop moving
+3452.7135682099033
+rescan
+found him
+27907.13496031356
+141578.9612952033
+found him
+movement
+movement
+movement
+127.0.0.1 - - [22/Jun/2024 09:26:53] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:47:45] "POST /callpreset HTTP/1.1" 200 -
+127.0.0.1 - - [22/Jun/2024 09:47:48] "POST /callpreset HTTP/1.1" 200 -
+2024-06-22 09:54:06.668 Python[530:4854] AdjustToIronwoodHotKeyChange - CG (hotmod:1) HotKey : hotKey enabled = 1, keyChar=0xfffbffff, virtKey=0x40000, flags=0x0 
