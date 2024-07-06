@@ -4,6 +4,7 @@ import rect as R
 import People as P
 from pynput import keyboard
 import MotorController as M
+import ATEMController as A
 import threading
 import time
 from facenet_pytorch import MTCNN, InceptionResnetV1
@@ -15,9 +16,10 @@ from flask import Flask,request
 boundx=200
 boundy=25
 delay=0 #cando / OPTIONAL -> use delay to slowdown searching for faces (when not in use)
+autocut=False
 adjustbounds=True
 interupt=False
-ptzmode=True
+ptzmode=False
 app = Flask(__name__)
 if ptzmode:
     mc=M.Mcontrol("192.168.20.202")
@@ -58,10 +60,10 @@ def on_press(key):
 endthread=True
 lines=[]
 
-
+selected=0
 shared_frame = None
 def track():
-    global persons, shared_frame, endthread,cap,resized,prev_gray, lines,alttracking
+    global persons, shared_frame, endthread,cap,resized,prev_gray, lines,alttracking,selected,autocut
     index=0
     while not endthread:
         if shared_frame is None:
@@ -73,22 +75,27 @@ def track():
                 if len(persons)>0:
                     # persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()]
                     if(resized or not sizechange):
-                        
+                        id=0
                         for person in persons:
+                            
                             # shared_frame = cv2.cvtColor(shared_frame, cv2.COLOR_BGR2GRAY)
                             if person.update(shared_frame)==False or alttracking:
-                                # if shared_frame is None:
-                                #     time.sleep(0.0001)
-                                #     continue 
+                                frame_height, frame_width = shared_frame.shape[:2]
+                                notgray=cv2.resize(shared_frame, (160,120), interpolation=cv2.INTER_CUBIC)
+                                 
                                 if alttracking:
                                     person.tracking=False
                                     # person.innitt2(gray)
-                                    
-                                lost=person.unpair(prev_gray,gray)
-
+                                lost=person.altt(notgray,int(frame_width/160),int(frame_height/120))
+                                # lost=person.unpair(prev_gray,gray,notgray)
                                 if lost:
-                                        persons.remove(person)
-                                        print("got rid of him")
+                                    persons.remove(person)
+                                    print("got rid of him")
+
+                                    if id==selected and autocut:
+                                            # A.switchcam(6)
+                                            print("switchcam")
+                            id+=1
                                 
                                 
                 else:
@@ -116,8 +123,8 @@ def on_release(key):
         pass
 
 # Start listener for key press and release
-# listener = keyboard.Listener(on_press=on_press, on_release=on_release) # disable for now
-# listener.start()
+listener = keyboard.Listener(on_press=on_press, on_release=on_release) # disable for now
+listener.start()
 
 detect=False
 resized=False
@@ -139,7 +146,7 @@ persons = []
 frame_idx = 0
 face_detection_interval = 1  # Detect faces every 10 frames
 box=R.Rect()
-selected=0
+
 nn=True
 scale_factor2 = 0.25  # Example: Reduce size by half
 
@@ -168,7 +175,7 @@ def callpreset(preset):
     detect=False    
     pass
 def stream_deck_command(command):
-    global mc,interupt,delay,persons,detect,boundx,boundy,showbounds
+    global mc,interupt,delay,persons,detect,boundx,boundy,showbounds,autocut
     interupt=True
     print(command)
     delay=time.time()
@@ -228,6 +235,8 @@ def stream_deck_command(command):
         showbounds=True
         boundy-=25
         interupt=False
+    elif command=="autocut":
+        autocut=not autocut
 @app.route('/callpreset', methods=['POST'])
 def handle_callpreset():
     data = request.json
@@ -506,6 +515,9 @@ while True:
         else:
             text="Tracking on"
             cv2.putText(frame,text,(20,50),font,1,(0,0,255),1)
+        if autocut:
+            text="Auto cut on"
+            cv2.putText(frame,text,(20,90),font,1,(0,0,255),1)
             
         # Increment frame index
         frame_idx += 1
@@ -562,30 +574,7 @@ while True:
         
         
         # Display the frame
-        side_panel = np.zeros((frame.shape[0], 250, 3), dtype="uint8")
-       
-        texts=["Press 'e' key to enable",
-               "and disable face",
-               "recogonition",
-               "Press WASD keys to move",
-               "Press 'f' or 'g' to", 
-               "adjust horizontal bounds",
-               "Press 'c' or 'v' to",
-               "adjust vertical bounds",
-               "Press 'b' or 'n' to",
-               "switch sqaures",
-                "Press 'r' to reset all",
-                "detected sqaures"
-        ]
-        font=cv2.FONT_HERSHEY_COMPLEX_SMALL
-        font_color=(255,255,255)
-        for i,text in enumerate(texts):
-            cv2.putText(side_panel,text,(10,20+(i*25)),font,.6,font_color,1)
-        # cv2.putText(side_panel,text1,(10,20),font,.5,font_color,1)
         
-        frame = np.hstack((frame, side_panel_new))
-        if frame_idx>1000:
-            frame_idx=0
         
         
         

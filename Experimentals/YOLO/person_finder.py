@@ -272,7 +272,7 @@ def trackmovment(head,frame,boundx,boundy,traking):
                     mc.u=0
                 if (head.x<boundx):
                     sensitiv=int(abs((head.x-boundx)/head.w)*18)
-                    if sensitiv>14:
+                    if sensitiv>12:
                         sensitiv=14
                     elif sensitiv<4:
                         sensitiv=3
@@ -285,7 +285,7 @@ def trackmovment(head,frame,boundx,boundy,traking):
                     movment=True
                 elif (head.ex>frame.shape[1]-boundx):
                     sensitiv=int(abs((head.ex-(frame.shape[1]-boundx))/head.w)*18)
-                    if sensitiv>14:
+                    if sensitiv>12:
                         sensitiv=14
                     elif sensitiv<4:
                         sensitiv=3
@@ -417,7 +417,6 @@ while True:
                 faces = face_cascade.detectMultiScale(gray,1.5, 8, minSize=(100, 100))
                 if len(faces)>0: 
                     print("found "+str(len(faces)))
-            
             if nn and len(faces)==0:
                 if face_detection_interval==2 or face_detection_interval>20:
                         small_frame = cv2.resize(frame, None, fx=scale_factor2, fy=scale_factor2, interpolation=cv2.INTER_LINEAR)
@@ -467,6 +466,10 @@ while True:
                     for peaple in persons:
                         if not peaple.tracking: #be sure to remove the false
                             peaple.confidence-=1
+                            if peaple.confidence<0:
+                                persons.remove(peaple)
+                                print("removed")
+                            print(peaple.confidence)
 
 
         if len(persons)==0:

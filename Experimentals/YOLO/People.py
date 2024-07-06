@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import cv2
 import torch
+import time
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True, force_reload=False)
 lk_params = dict(winSize=(100, 100), maxLevel=4, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 100, .9)) 
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -26,10 +27,12 @@ class Person:
         self.shirttrack=None
         self.shirttracking=False
         self.roi=None
+        self.alive=None
 
     def init(self, frame, bbox):
         print("found him")
-        self.confidence=10
+        self.alive=time.time()
+        self.confidence=5
         self.prev_pts = None
         self.bbox = bbox
         self.rect.set(bbox)
@@ -51,14 +54,15 @@ class Person:
         #     height, width, channels = frame.shape
         #     print("The frame has {} channels.".format(channels))
         # else:
-        #     print("The frame is likely grayscale and has a single channel.")
+        
         self.recentPair=False
         try:
             success, bbox = self.tracker.update(frame)
             if success:
                 self.bbox = bbox
                 self.rect.set(bbox)
-                
+                if time.time()-self.alive>10:
+                    self.tracking=False
                 # self.roi = cv2.resize(frame[int(self.rect.y):int(self.rect.ey), int(self.rect.x):int(self.rect.ex)], (100, 200)) 
             else:
                 self.tracking=False
@@ -131,14 +135,13 @@ class Person:
                 cx=int((x1*scalex)+(w*scalex/2))
                 cy=int((y1*scaley)+(h*scaley/2))
                 self.rect.setC(cx,cy)
-                print("shirt updated")
             else:
                 self.shirttracking = False
                 self.shirttrack = None
         print(self.confidence)        
-        if self.confidence<1:
+        if self.confidence<1 and (time.time()-self.alive>10):
             
             return True
         return False
     
-    
+    # def bodysearch(self,prev_gray,gray):
