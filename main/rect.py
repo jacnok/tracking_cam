@@ -16,7 +16,10 @@ class Rect:
         deltay = self.cy - box.cy
         dist = (deltax ** 2) + (deltay ** 2)
         return (dist < (self.w * box.w)), dist
-
+    def overlapx(self, box: 'Rect') -> tuple[bool, float]:
+        """ Calculate if there's an overlap with another box based on distance. """
+        deltax = self.cx - box.cx
+        return (deltax < (self.w + box.w)), deltax
     def set(self, bbox_tuple: tuple[int, int, int, int]):
         """ Update rectangle coordinates and derived metrics. """
         (self.x, self.y, self.w, self.h) = bbox_tuple

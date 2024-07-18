@@ -227,9 +227,6 @@ class Mcontrol:
             s.connect((self.ip, 1259))
             s.send(data)
             s.close()
-
-        
-            
         movement=[self.u,self.d,self.L,self.r,self.Senitivityx]
         if checkarray(movement,self.oldval):
             if self.u==1:

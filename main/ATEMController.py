@@ -46,5 +46,3 @@ def switchcam(cam):
 
     switcher.disconnect()
     print(f"[{time.ctime()}] Switched to camera {cam}")
-    
-switchcam(5)
