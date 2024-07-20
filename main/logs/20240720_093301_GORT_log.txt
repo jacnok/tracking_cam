@@ -1,0 +1,26 @@
+Using cache found in /Users/streamer/.cache/torch/hub/ultralytics_yolov5_master
+[31m[1mrequirements:[0m Ultralytics requirements ['gitpython>=3.1.30', 'pillow>=10.3.0'] not found, attempting AutoUpdate...
+/bin/sh: pip: command not found
+/bin/sh: pip: command not found
+Retry 1/2 failed: Command 'pip install --no-cache-dir "gitpython>=3.1.30" "pillow>=10.3.0" ' returned non-zero exit status 127.
+Retry 2/2 failed: Command 'pip install --no-cache-dir "gitpython>=3.1.30" "pillow>=10.3.0" ' returned non-zero exit status 127.
+[31m[1mrequirements:[0m ❌ Command 'pip install --no-cache-dir "gitpython>=3.1.30" "pillow>=10.3.0" ' returned non-zero exit status 127.
+YOLOv5 🚀 2024-6-22 Python-3.12.3 torch-2.2.2 CPU
+
+Fusing layers... 
+YOLOv5s summary: 213 layers, 7225885 parameters, 0 gradients, 16.4 GFLOPs
+Adding AutoShape... 
+4.10.0
+ * Serving Flask app 'person_finder'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+[33mPress CTRL+C to quit[0m
+Traceback (most recent call last):
+  File "/Users/streamer/Documents/python_code/Gort/tracking_cam/main/person_finder.py", line 491, in <module>
+    new_person = P.Person(tracker_type='KCF')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/streamer/Documents/python_code/Gort/tracking_cam/main/People.py", line 15, in __init__
+    'CSRT': cv2.TrackerCSRT_create,
+            ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'cv2' has no attribute 'TrackerCSRT_create'

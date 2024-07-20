@@ -13,18 +13,18 @@ print(cv2.__version__)
 from flask import Flask,request
 
 
-boundx=200
+boundx=100
 boundy=25
 delay=0 #cando / OPTIONAL -> use delay to slowdown searching for faces (when not in use)
 adjustbounds=True
 interupt=False
-ptzmode=False
+ptzmode=True
 debug=False
 autocut=False
 direct=False
 app = Flask(__name__)
 if ptzmode:
-    mc=M.Mcontrol("192.168.20.202")
+    mc=M.Mcontrol("192.168.20.206")
 else:
     mc=M.Mcontrol()
 alttracking=False
@@ -208,12 +208,6 @@ def stream_deck_command(command):
             detect= False
         else:
             detect=True
-    elif command=="autocut":
-        autocut= not autocut
-    elif command=="direct":
-        direct= not direct
-        autocut=direct
-
     if ptzmode:
         mc.Senitivityx=1
     mc.write()
@@ -233,6 +227,15 @@ def stream_deck_command(command):
         showbounds=True
         boundy-=25
         interupt=False
+    elif command=="autocut":
+        if autocut:
+            autocut=False
+        else:
+            autocut=True
+        print(autocut)
+    elif command=="direct":
+        direct= not direct
+        autocut=direct
 @app.route('/callpreset', methods=['POST'])
 def handle_callpreset():
     data = request.json
@@ -329,6 +332,10 @@ def trackmovment(head,frame,boundx,boundy,traking):
                         mc.L=1
                         mc.r=0
                         movment=True
+                if ptzmode:
+                    if mc.Senitivityx>2 or mc.Senitivityy>2:
+                         mc.Senitivityy=1
+                         mc.Senitivityx=1
                 if movment==False:
                     mc.none()
                 else:
@@ -553,7 +560,7 @@ while True:
         if  not detect or key_held:
             cv2.putText(frame,text,(20,100),font,1,(0,0,255),2)
         if autocut: #put a blue dot on top left corner
-            cv2.circle(frame, (20,20), 10, (255,0,0), -1)
+            cv2.circle(frame, (20,20), 100, (255,0,0), -1)
         if direct: #in big red words write direct mode in the midle of the screen
             cv2.putText(frame,"DIRECT MODE",(int(frame.shape[1]/2)-200,int(frame.shape[0]/2)),font,2,(0,0,255),2)
         # Increment frame index
