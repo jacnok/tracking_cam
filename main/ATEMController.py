@@ -3,7 +3,7 @@ import PyATEMMax
 import logging
 
 
-class ATEMController:
+class ATEMControl:
     def __init__(self, ip ="192.168.20.177"):
         self.switcher = PyATEMMax.ATEMMax()
         self.ip = ip
@@ -68,13 +68,13 @@ class ATEMController:
         self.switcher.disconnect()
         print("Disconnected from ATEM")
 
-ip = "10.0.0.100"
-ac = ATEMController(ip)
-for i in range(1,5):
-    ac.switchcam(i)
-    time.sleep(2)
-for i in range(1,5):
-    ac.softswitchcam(i)
-    time.sleep(2)
-print (ac.findcam())
-ac.disconnect()
+# ip = "10.0.0.100"
+# ac = ATEMController(ip)
+# for i in range(1,5):
+#     ac.switchcam(i)
+#     time.sleep(2)
+# for i in range(1,5):
+#     ac.softswitchcam(i)
+#     time.sleep(2)
+# print (ac.findcam())
+# ac.disconnect()

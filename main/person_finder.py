@@ -19,7 +19,7 @@ delay=0 #cando / OPTIONAL -> use delay to slowdown searching for faces (when not
 adjustbounds=True
 interupt=False
 ptzmode=True
-debug=False
+debug=True
 autocut=False
 direct=False
 app = Flask(__name__)
@@ -27,7 +27,8 @@ if ptzmode:
     mc=M.Mcontrol("192.168.20.202")
 else:
     mc=M.Mcontrol()
-ac=ATEMController.ATEMControll("192.168.20.177")
+if not debug:
+    ac=ATEMController.ATEMControl("192.168.20.177")
 alttracking=False
 def draw_boxes(frame, peaple):
     for p in peaple:
@@ -395,7 +396,8 @@ def directmode():
         searching=True
     else:
         if searching:
-            ac.switchcam(5)
+            if not debug:
+                ac.switchcam(5)
             print("switched to cam 5")
             autocut=True
         searching=False
@@ -528,7 +530,7 @@ while True:
         if len(persons)==0:
             face_detection_interval=1
             if autocut:
-                if direct:
+                if direct and not debug:
                     if lastcam==6:
                         lastcam=4
                     else:
@@ -536,7 +538,8 @@ while True:
                     ac.switchcam(lastcam)
                     autocut=False
                 else:
-                    ac.switchcam(4)
+                    if not debug:
+                        ac.switchcam(4)
                     if direct:
                         delay=time.time()
                     autocut=False
@@ -561,7 +564,7 @@ while True:
         if  not detect or key_held:
             cv2.putText(frame,text,(20,100),font,1,(0,0,255),2)
         if autocut: #put a blue dot on top left corner
-            cv2.circle(frame, (20,20), 100, (255,0,0), -1)
+            cv2.circle(frame, (20,20), 25, (255,0,0), -1)
         if direct: #in big red words write direct mode in the midle of the screen
             cv2.putText(frame,"DIRECT MODE",(int(frame.shape[1]/2)-200,int(frame.shape[0]/2)),font,2,(0,0,255),2)
         # Increment frame index
@@ -635,4 +638,5 @@ cap.release()
 cv2.destroyAllWindows()
 if debug:
     listener.stop()
-ac.disconnect()
+else:
+    ac.disconnect()
