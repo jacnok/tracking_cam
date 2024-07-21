@@ -1,5 +1,5 @@
 import cv2
-import ATEMController as ac
+import ATEMController
 import numpy as np
 import rect as R
 import People as P
@@ -24,9 +24,10 @@ autocut=False
 direct=False
 app = Flask(__name__)
 if ptzmode:
-    mc=M.Mcontrol("192.168.20.206")
+    mc=M.Mcontrol("192.168.20.202")
 else:
     mc=M.Mcontrol()
+ac=ATEMController.ATEMControll("192.168.20.177")
 alttracking=False
 def draw_boxes(frame, peaple):
     for p in peaple:
@@ -634,3 +635,4 @@ cap.release()
 cv2.destroyAllWindows()
 if debug:
     listener.stop()
+ac.disconnect()

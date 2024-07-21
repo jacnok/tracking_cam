@@ -2,57 +2,79 @@ import time
 import PyATEMMax
 import logging
 
-switcher = PyATEMMax.ATEMMax()
-count = 0
 
-# Define the transition rate (in frames)
-TRANSITION_RATE = 100  # Adjust this value as needed
+class ATEMController:
+    def __init__(self, ip ="192.168.20.177"):
+        self.switcher = PyATEMMax.ATEMMax()
+        self.ip = ip
+        self.switcher.connect(ip)
 
-# currently only works as a janky transition bc
-# switcher.execAutoME(0) is being ignored bc of a switcher disconnect
-# so the sloppy code below is a workaround
+    def switchcam(self,cam):
+        # ip = "10.0.0.100"
+        counter = 0
+        sent=False
+        while sent==False:
+            if self.switcher.waitForConnection(timeout=5):
+                
+                self.switcher.setProgramInputVideoSource(0, cam)
+                sent=True
+            else:
+                print("Connection failed")
+                counter+=1
+                if counter>5:
+                    print("Connection failed too many times")
+                    sent=True
+                    break
+                else:
+                    print("Trying again")
+                    self.switcher.connect(self.ip) 
+        print(f"[{time.ctime()}] Switched to camera {cam}")
 
-# def switchcam2(cam):
-#     ip = "192.168.20.177"
-#     switcher.connect(ip,5,0)
-#     if switcher.waitForConnection(infinite=False,waitForFullHandshake=False):
+    def softswitchcam(self,cam):
+        # ip = "10.0.0.100"
+        counter = 0
+        sent=False
+        while sent==False:
+            if self.switcher.waitForConnection(timeout=5):
+                
+                self.switcher.setPreviewInputVideoSource(0, cam)
+                self.switcher.execAutoME(0)
 
-#         # Use to set the program input source via hard cuts.
-#         # switcher.setProgramInputVideoSource(0, cam)
+                sent=True
+            else:
+                print("Connection failed")
+                counter+=1
+                if counter>5:
+                    print("Connection failed too many times")
+                    sent=True
+                    break
+                else:
+                    print("Trying again")
+                    self.switcher.connect(self.ip) 
+        print(f"[{time.ctime()}] Switched to camera {cam}")
+    def findcam(self): #script takes a while to run use threading
+        found = False
+        for i in range(1, 20):
+            for r in range(1, 5):
+                if self.switcher.tally.bySource.flags[r].program:
+                    found = True
+                    break
+            if found:
+                break
+            time.sleep(0.1)
+        return r
 
-#         # added logging so we can see what's going on
-#         switcher.setLogLevel(logging.DEBUG)
-#         logger = logging.getLogger(__name__)
-#         logging.basicConfig(filename='example.log', encoding='utf-8', level=logging.INFO)
+    def disconnect(self):
+        self.switcher.disconnect()
+        print("Disconnected from ATEM")
 
-
-#         switcher.setPreviewInputVideoSource(0, cam)
-#         switcher.setTransitionStyle(0, PyATEMMax.ATEMTransitionStyles.mix)
-
-#          # Set the transition rate
-#         switcher.setTransitionMixRate(0, TRANSITION_RATE)
-#         print(f"Transition rate set to {TRANSITION_RATE} frames")       
-        
-#         # never works bc of a switcher disconnect???
-#         switcher.execAutoME(0)
-
-#         # this is a janky workaround
-#         for i in range(1, 9999):
-#             switcher.setTransitionPosition(PyATEMMax.ATEMMixEffects.mixEffect1, i)
-
-  
-#     else:
-#         print(f"[{time.ctime()}] No ATEM switcher found at {ip}")
-def switchcam(cam):
-    ip = "192.168.20.177"
-    switcher.connect(ip,5,0)
-    if switcher.waitForConnection(infinite=False,waitForFullHandshake=True):
-
-        # Use to set the program input source via hard cuts.
-        print("switching")
-        switcher.setProgramInputVideoSource(0, cam)
-    else:
-        print(f"[{time.ctime()}] No ATEM switcher found at {ip}")
-    switcher.disconnect()
-    print(f"[{time.ctime()}] Switched to camera {cam}")
-# switchcam(4)
+ip = "10.0.0.100"
+ac = ATEMController(ip)
+for i in range(1,5):
+    ac.switchcam(i)
+    time.sleep(2)
+for i in range(1,5):
+    ac.softswitchcam(i)
+    time.sleep(2)
+print (ac.findcam())
+ac.disconnect()
