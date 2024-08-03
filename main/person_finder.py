@@ -18,7 +18,7 @@ boundy=25
 delay=0 #cando / OPTIONAL -> use delay to slowdown searching for faces (when not in use)
 adjustbounds=True
 interupt=False
-ptzmode=True
+ptzmode=False
 debug=True
 autocut=False
 direct=False
@@ -238,6 +238,8 @@ def stream_deck_command(command):
     elif command=="direct":
         direct= not direct
         autocut=direct
+    elif command=="toggle":
+        detect= not detect
 @app.route('/callpreset', methods=['POST'])
 def handle_callpreset():
     data = request.json
@@ -576,7 +578,7 @@ while True:
             if (selected+1)>len(persons):
                 selected=0
             
-            if interupt==False and not debug:
+            if interupt==False:
                 trackmovment(persons[selected].rect,frame,boundx,boundy,persons[selected].tracking)
             else:
                 if delay+1<time.time():

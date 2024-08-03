@@ -53,7 +53,7 @@ def generate_pan_relative_commands(command, pan_speed, tilt_speed):
 def get_camera_map():
     return {
         "CAMA": "192.168.20.200",
-        "CAM5A": "192.168.20.203",
+        "CAM5A": "192.168.20.205",
         "CAM5": "192.168.20.206",
         "CAM6": "192.168.20.201"
     }
@@ -130,7 +130,7 @@ def main():
         execute_command(get_camera_map()[args.camera_name], camera_command, port=args.port)
 
 class Mcontrol:
-    def __init__(self, ip="192.168.20.203"):
+    def __init__(self, ip="192.168.20.205"):
         self.u = 0
         self.d = 0
         self.L = 0
@@ -141,7 +141,7 @@ class Mcontrol:
         self.connected = False
         self.oldval = [0, 0, 0, 10]  # u, d, L, r, z
         self.ip = ip
-        if ip == "192.168.20.203":
+        if ip == "192.168.20.205":
             self.Senitivityy = 5
         else:
             self.Senitivityy = 1
@@ -285,7 +285,7 @@ class Mcontrol:
             s.connect((self.ip, 1259))
             camera_command = generate_call_preset_command(preset)
             print(f' calling preset {preset}')
-            if self.ip == "192.168.20.203":
+            if self.ip == "192.168.20.205":
                 execute_command(get_camera_map()["CAM5A"], camera_command, port=1259)
             elif self.ip == "192.168.20.206":
                 execute_command(get_camera_map()["CAM5"], camera_command, port=1259)

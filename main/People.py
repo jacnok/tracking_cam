@@ -28,6 +28,8 @@ class Person:
         self.shirttracking=False
         self.roi=None
         self.alive=None
+        self.oldx=None
+        self.movment=0
 
     def init(self, frame, bbox):
         self.alive=time.time()
@@ -37,6 +39,7 @@ class Person:
         self.rect.set(bbox)
         self.tracker=cv2.TrackerKCF_create()
         self.tracker.init(frame, bbox)
+        self.oldx=self.rect.cx
         try:
             self.roi = cv2.resize(frame[max(0, int(self.rect.y)):int(self.rect.ey), max(0, int(self.rect.x)):int(self.rect.ex)], (100, 200))
         except Exception as e:
@@ -52,11 +55,14 @@ class Person:
             if success:
                 self.bbox = bbox
                 self.rect.set(bbox)
-                if time.time()-self.alive>10:
-                    self.tracking=False
+                self.movment=abs(self.oldx-self.rect.cx)+self.movment
+                if time.time()-self.alive>3:
+                    if self.movment>10:
+                        self.tracking=False
                 # self.roi = cv2.resize(frame[int(self.rect.y):int(self.rect.ey), int(self.rect.x):int(self.rect.ex)], (100, 200)) 
             else:
                 self.tracking=False
+            self.oldx=self.rect.cx
             return success
         except Exception as e:
             print(e)
