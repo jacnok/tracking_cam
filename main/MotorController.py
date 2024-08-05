@@ -1,6 +1,4 @@
 import socket
-import argparse
-import time
 
 # Generate Functions
 #############################################################################
@@ -50,101 +48,33 @@ def generate_pan_relative_commands(command, pan_speed, tilt_speed):
     pan_stop_command = get_command_map()['pan_stop'].replace('@', "%0.2X" % pan_speed).replace('#', "%0.2X" % tilt_speed)
     return pan_command, pan_stop_command
 
-def get_camera_map():
-    return {
-        "CAMA": "192.168.20.200",
-        "CAM5A": "192.168.20.205",
-        "CAM5": "192.168.20.206",
-        "CAM6": "192.168.20.201"
-    }
 
-def execute_command(cam_IP, command, port):
+def execute_commandTCP(cam_IP, command, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((cam_IP, port))
     data = bytes.fromhex(command)
     s.sendall(data)
     s.close()
 
-def get_parser():
-    camera = 'CAM5A'
-    preset = 7
-    port = 1259
-    command = 'execute_preset'
-    pan_speed = 9   # 1-18
-    tilt_speed = 7  # 1-14
-    pan_duration = 1
-
-    parser = argparse.ArgumentParser(description="Tester calling camera functions")
-    parser.add_argument("-camera_name", help=f"CAMA, CAM3, CAM5, CAM6 -- default {camera}", default=camera)
-    parser.add_argument("-port", type=int, help=f"camera IP port -- default {port}", default=port)
-    parser.add_argument("-command", help=f"Command -- default {command}", default=command)
-    parser.add_argument("-preset_num", type=int, help=f"preset number 1-255 -- default {preset}", default=preset)
-    parser.add_argument("-pan_speed", type=int, help=f"pan speed 1-18 -- default {pan_speed}", default=pan_speed)
-    parser.add_argument("-tilt_speed", type=int, help=f"tilt speed 1-14 -- default {tilt_speed}", default=tilt_speed)
-    parser.add_argument("-pan_duration", type=int, help=f"duration for pan commands in seconds -- default {pan_duration}", default=pan_duration)
-
-    return parser
-
-def get_args():
-    return get_parser().parse_args()
-
-def print_help():
-    get_parser().print_help()
-
-def main():
-    args = get_args()
-
-    if args.command not in get_command_map():
-        print_help()
-        raise Exception(f"Command {args.command} is not found in map")
-    if args.camera_name not in get_camera_map():
-        print_help()
-        raise Exception(f"Camera {args.camera_name} is not found in map")
-
-    verbose_str = f'Executing {args.command} on camera {args.camera_name}'
-    if args.command == 'execute_preset':
-        if args.preset_num <= 254 and args.preset_num >= 0:
-            camera_command = generate_call_preset_command(args.preset_num)
-            verbose_str += f' calling preset {args.preset_num}'
-        else:
-            print_help()
-            raise Exception("Preset must be between zero and 254")
-        print(verbose_str)
-        execute_command(get_camera_map()[args.camera_name], camera_command, port=args.port)
-    elif 'pan_' in args.command:
-        if args.pan_speed > 18 or args.pan_speed < 1:
-            print_help()
-            raise Exception("pan_speed must be between 1 and 18")
-        if args.tilt_speed > 14 or args.tilt_speed < 1:
-            print_help()
-            raise Exception("tilt_speed must be between 1 and 14")
-        pan_start, pan_stop = generate_pan_relative_commands(args.command, args.pan_speed, args.tilt_speed)
-        verbose_str += f' with pan speed of {args.preset_num} and tilt speed of {args.tilt_speed} for duration of {args.pan_duration}'
-        print(verbose_str)
-        execute_command(get_camera_map()[args.camera_name], pan_start, port=args.port)
-        time.sleep(args.pan_duration)
-        execute_command(get_camera_map()[args.camera_name], pan_stop, port=args.port)
-    else:
-        camera_command = generate_static_command(args.command)
-        print(verbose_str)
-        execute_command(get_camera_map()[args.camera_name], camera_command, port=args.port)
+def execute_commandUDP(cam_IP, command, port):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Use SOCK_DGRAM for UDP
+    data = bytes.fromhex(command)
+    s.sendto(data, (cam_IP, port))  # Use sendto for UDP
+    s.close()
 
 class Mcontrol:
-    def __init__(self, ip="192.168.20.205"):
+    def __init__(self,ip,tcp, port):
         self.u = 0
         self.d = 0
         self.L = 0
         self.r = 0
-        self.Senitivityx = 255
-        self.reset = 0
+        self.Senitivityx = 10
+        self.Senitivityy = 2
         self.zoom = 0
-        self.connected = False
         self.oldval = [0, 0, 0, 10]  # u, d, L, r, z
         self.ip = ip
-        if ip == "192.168.20.205":
-            self.Senitivityy = 5
-        else:
-            self.Senitivityy = 1
+        self.tcp=tcp
+        self.port=port
 
     def keypressed(self, keycode, keyheld):
         valid = False
@@ -181,19 +111,17 @@ class Mcontrol:
             self.Senitivityx = 10
             self.zoom = 0
             move, stop = generate_pan_relative_commands("pan_up", 8, 2)
-            data = bytes.fromhex(stop)
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((self.ip, 1259))
-            s.sendall(data)
-            s.close()
+            if self.tcp:
+                execute_commandTCP(self.ip, stop, self.port)
+            else:
+                execute_commandUDP(self.ip, stop, self.port)
             print("stop moving")
         if self.zoom != 0:
             zoom = get_command_map()["zoom_stop"]
-            data = bytes.fromhex(zoom)
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((self.ip, 1259))
-            s.sendall(data)
-            s.close()
+            if self.tcp:
+                execute_commandTCP(self.ip, zoom, self.port)
+            else:
+                execute_commandUDP(self.ip, zoom, self.port)
             self.zoom = 0
             print("stop zooming")
 
@@ -206,14 +134,15 @@ class Mcontrol:
         self.Senitivityx = 1
         self.zoom = 0
         move, stop = generate_pan_relative_commands("pan_up", 8, 2)
-        data = bytes.fromhex(stop)
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.ip, 1259))
-        s.sendall(data)
+        if self.tcp:
+            execute_commandTCP(self.ip, stop, self.port)
+        else:
+            execute_commandUDP(self.ip, stop, self.port)
         zoom = get_command_map()["zoom_stop"]
-        data = bytes.fromhex(zoom)
-        s.sendall(data)
-        s.close()
+        if self.tcp:
+            execute_commandTCP(self.ip, zoom, self.port)
+        else:
+            execute_commandUDP(self.ip, zoom, self.port)
         print("Force stop")
 
     def write(self):
@@ -224,68 +153,55 @@ class Mcontrol:
             zoom = get_command_map()["zoom_tele"]
             print("zooming in")
         if self.zoom != 0:
-            data = bytes.fromhex(zoom)
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((self.ip, 1259))
-            s.sendall(data)
-            s.close()
+            if self.tcp:
+                execute_commandTCP(self.ip, zoom, self.port)
+            else:
+                execute_commandUDP(self.ip, zoom, self.port)
         movement = [self.u, self.d, self.L, self.r, self.Senitivityx]
         if checkarray(movement, self.oldval):
             if self.u == 1:
                 if self.L == 1:
                     movecode, stop = generate_pan_relative_commands("pan_up_left", self.Senitivityx, self.Senitivityy)
-                    data = bytes.fromhex(movecode)
                 elif self.r == 1:
                     movecode, stop = generate_pan_relative_commands("pan_up_right", self.Senitivityx, self.Senitivityy)
-                    data = bytes.fromhex(movecode)
                 else:
                     movecode, stop = generate_pan_relative_commands("pan_up", self.Senitivityx, self.Senitivityy)
-                    data = bytes.fromhex(movecode)
             elif self.d == 1:
                 if self.L == 1:
                     movecode, stop = generate_pan_relative_commands("pan_down_left", self.Senitivityx, self.Senitivityy)
-                    data = bytes.fromhex(movecode)
                 elif self.r == 1:
                     movecode, stop = generate_pan_relative_commands("pan_down_right", self.Senitivityx, self.Senitivityy)
-                    data = bytes.fromhex(movecode)
                 else:
                     movecode, stop = generate_pan_relative_commands("pan_down", self.Senitivityx, self.Senitivityy)
-                    data = bytes.fromhex(movecode)
             else:
                 if self.oldval[0] == 1 or self.oldval[1] == 1:
                     s, stop = generate_pan_relative_commands("pan_down", 10, 14)
-                    data = bytes.fromhex(stop)
-                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    s.connect((self.ip, 1259))
-                    s.sendall(data)
-                    s.close()
+                    if self.tcp:
+                        execute_commandTCP(self.ip, stop, self.port)
+                    else:
+                        execute_commandUDP(self.ip, stop, self.port)
                 if self.L == 1:
-                    movecode, stop = generate_pan_relative_commands("pan_left", self.Senitivityx, self.Senitivityy)
-                    data = bytes.fromhex(movecode)
+                    movecode, stop = generate_pan_relative_commands("pan_left", self.Senitivityx, self.Senitivityy) 
                 elif self.r == 1:
                     movecode, stop = generate_pan_relative_commands("pan_right", self.Senitivityx, self.Senitivityy)
-                    data = bytes.fromhex(movecode)
                 else:
                     s, stop = generate_pan_relative_commands("pan_right", 10, 14)
-                    data = bytes.fromhex(stop)
+                    movecode=stop
 
             self.oldval = [self.u, self.d, self.L, self.r, self.Senitivityx]
             if self.oldval[0] == 1 or self.oldval[1] == 1 or self.oldval[2] == 1 or self.oldval[3] == 1:
-                print("movement")
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.connect((self.ip, 1259))
-                s.sendall(data)
-                s.close()
+                if self.tcp:
+                    execute_commandTCP(self.ip, movecode, self.port)
+                else:
+                    execute_commandUDP(self.ip, movecode, self.port)
 
     def preset(self, preset):
         if preset < 0 or preset > 254:
             raise Exception("Preset must be between zero and 254")
         else:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((self.ip, 1259))
             camera_command = generate_call_preset_command(preset)
             print(f' calling preset {preset}')
-            if self.ip == "192.168.20.205":
-                execute_command(get_camera_map()["CAM5A"], camera_command, port=1259)
-            elif self.ip == "192.168.20.206":
-                execute_command(get_camera_map()["CAM5"], camera_command, port=1259)
+            if self.tcp:
+                execute_commandTCP(self.ip, camera_command, self.port)
+            else:
+                execute_commandUDP(self.ip, camera_command, self.port)

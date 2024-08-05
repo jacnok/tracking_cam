@@ -1,0 +1,132 @@
+import socket
+
+# Generate Functions
+#############################################################################
+# Commands from https://f.hubspotusercontent20.net/hubfs/418770/PTZOptics%20Documentation/Misc/PTZOptics%20VISCA%20Commands.pdf
+
+def checkarray(array, array2):
+    return any(value != array2[i] for i, value in enumerate(array))
+
+def get_command_map():
+    return {
+        "power_on": "8101040002FF",
+        "power_off": "8101040003FF",
+        "image_flip_on": "8101046602FF",
+        "image_flip_off": "8101046603FF",
+        "camera_flip_off": "810104A400FF",
+        "camera_flip_H": "810104A401FF",
+        "camera_flip_V": "810104A402FF",
+        "camera_flip_VH": "810104A403FF",
+        "tracking_on": "810A115402FF",
+        "tracking_off": "810A115403FF",
+        "execute_preset": "8101043F02@FF",
+        "pan_up": "81010601@#0301FF",
+        "pan_down": "81010601@#0302FF",
+        "pan_left": "81010601@#0103FF",
+        "pan_right": "81010601@#0203FF",
+        "pan_up_left": "81010601@#0101FF",
+        "pan_up_right": "81010601@#0201FF",
+        "pan_down_left": "81010601@#0102FF",
+        "pan_down_right": "81010601@#0202FF",
+        "pan_stop": "81010601@#0303FF",
+        "zoom_stop": "8101040700FF",
+        "zoom_tele": "8101040702FF",
+        "zoom_wide": "8101040703FF"
+    }
+
+def generate_static_command(command):
+    return get_command_map()[command]
+
+def generate_call_preset_command(preset):
+    return get_command_map()['execute_preset'].replace('@', f"{preset:02X}")
+
+def generate_pan_relative_commands(command, pan_speed, tilt_speed):
+    cmd = get_command_map()[command]
+    return (cmd.replace('@', f"{pan_speed:02X}").replace('#', f"{tilt_speed:02X}"),
+            get_command_map()['pan_stop'].replace('@', f"{pan_speed:02X}").replace('#', f"{tilt_speed:02X}"))
+
+def execute_command(cam_IP, command, port, protocol):
+    data = bytes.fromhex(command)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM if protocol == 'TCP' else socket.SOCK_DGRAM) as s:
+        if protocol == 'TCP':
+            s.connect((cam_IP, port))
+            s.sendall(data)
+        else:
+            s.sendto(data, (cam_IP, port))
+
+class Mcontrol:
+    def __init__(self, ip, tcp, port):
+        self.u = self.d = self.L = self.r = self.zoom = 0
+        self.Senitivityx = 10
+        self.Senitivityy = 2
+        self.oldval = [0, 0, 0, 0, 10]  # u, d, L, r, Senitivityx
+        self.ip = ip
+        self.protocol = 'TCP' if tcp else 'UDP'
+        self.port = port
+
+    def keypressed(self, keycode, keyheld):
+        key_map = {'w': 'u', 's': 'd', 'a': 'L', 'd': 'r', 'z': 'zoom', 'x': 'zoom'}
+        if keycode in key_map:
+            setattr(self, key_map[keycode], 1 if keycode != 'x' else -1)
+            if not keyheld:
+                self.Senitivityx = 10
+                self.write()
+            return True
+        return False
+
+    def none(self):
+        if any(self.oldval[:4]):
+            self.reset_movement()
+            stop_command = generate_pan_relative_commands("pan_up", 8, 2)[1]
+            execute_command(self.ip, stop_command, self.port, self.protocol)
+            print("stop moving")
+
+        if self.zoom:
+            stop_zoom_command = get_command_map()["zoom_stop"]
+            execute_command(self.ip, stop_zoom_command, self.port, self.protocol)
+            self.zoom = 0
+            print("stop zooming")
+
+    def reset_movement(self):
+        self.u = self.d = self.L = self.r = self.zoom = 0
+        self.oldval = [0, 0, 0, 0, 10]
+        self.Senitivityx = 10
+
+    def stopmove(self):
+        self.reset_movement()
+        stop_command = generate_pan_relative_commands("pan_up", 8, 2)[1]
+        zoom_stop_command = get_command_map()["zoom_stop"]
+        execute_command(self.ip, stop_command, self.port, self.protocol)
+        execute_command(self.ip, zoom_stop_command, self.port, self.protocol)
+        print("Force stop")
+
+    def write(self):
+        if self.zoom:
+            zoom_command = get_command_map()["zoom_tele" if self.zoom == 1 else "zoom_wide"]
+            execute_command(self.ip, zoom_command, self.port, self.protocol)
+            print("zooming in" if self.zoom == 1 else "zooming out")
+
+        movement = [self.u, self.d, self.L, self.r, self.Senitivityx]
+        if checkarray(movement, self.oldval):
+            movecode = self.get_movement_code()
+            self.oldval = [self.u, self.d, self.L, self.r, self.Senitivityx]
+            if any(self.oldval[:4]):
+                execute_command(self.ip, movecode, self.port, self.protocol)
+
+    def get_movement_code(self):
+        if self.u:
+            return generate_pan_relative_commands("pan_up_left" if self.L else "pan_up_right" if self.r else "pan_up", self.Senitivityx, self.Senitivityy)[0]
+        elif self.d:
+            return generate_pan_relative_commands("pan_down_left" if self.L else "pan_down_right" if self.r else "pan_down", self.Senitivityx, self.Senitivityy)[0]
+        elif self.L:
+            return generate_pan_relative_commands("pan_left", self.Senitivityx, self.Senitivityy)[0]
+        elif self.r:
+            return generate_pan_relative_commands("pan_right", self.Senitivityx, self.Senitivityy)[0]
+        return generate_pan_relative_commands("pan_right", 10, 14)[1]
+
+    def preset(self, preset):
+        if not 0 <= preset <= 254:
+            raise ValueError("Preset must be between 0 and 254")
+        camera_command = generate_call_preset_command(preset)
+        execute_command(self.ip, camera_command, self.port, self.protocol)
+        print(f'calling preset {preset}')

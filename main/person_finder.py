@@ -9,24 +9,47 @@ import threading
 import time
 from facenet_pytorch import MTCNN, InceptionResnetV1
 from PIL import Image
+import argparse
 print(cv2.__version__)
 from flask import Flask,request
 
-
 boundx=100
 boundy=25
-delay=0 #cando / OPTIONAL -> use delay to slowdown searching for faces (when not in use)
+delay=0
 adjustbounds=True
 interupt=False
 ptzmode=False
-debug=True
 autocut=False
 direct=False
 app = Flask(__name__)
-if ptzmode:
-    mc=M.Mcontrol("192.168.20.202")
-else:
-    mc=M.Mcontrol()
+
+
+
+def get_parser():
+    cameraIP = "192.168.20.205"
+    port = 1259
+    PTZ=False
+    TCP=True
+    debug=True
+    communicate=False
+    parser = argparse.ArgumentParser(description="intial setings for GORT")
+    parser.add_argument("-camera_IP", help=f"CAMA, CAM3, CAM5, CAM6 -- default {cameraIP}", default=cameraIP)
+    parser.add_argument("-port", type=int, help=f"camera IP port -- default {port}", default=port)
+    parser.add_argument("-PTZ", help=f"PTZ mode (True or False) -- default {PTZ}", default=PTZ)
+    parser.add_argument("-TCP", help=f"TCP mode (True or False) -- default {TCP}", default=TCP)
+    parser.add_argument("-debug", help=f"debug mode (True or False) -- default {debug}", default=debug)
+    parser.add_argument("-communicate", help=f"Whether Gort should send commands out (True or False) -- default {communicate}", default=communicate)
+    return parser
+
+def get_args():
+    return get_parser().parse_args()
+
+def print_help():
+    get_parser().print_help()
+args=get_args()
+debug=args.debug
+mc=M.Mcontrol(args.camera_IP,args.TCP,args.port)
+ptzmode=args.PTZ
 if not debug:
     ac=ATEMController.ATEMControl("192.168.20.177")
 alttracking=False
@@ -34,15 +57,12 @@ def draw_boxes(frame, peaple):
     for p in peaple:
         if p.tracking:
             color = (0, 255, 0)
-            # color = p.color
         else:
             color = (0, 0, 255)
             for person in persons:
                 if person.prev_pts is not None:
                     for pts in zip(person.prev_pts):
-                        # print(pts)
                         x, y = map(int, pts[0][0].ravel())  # Convert x and y to integers
-                        # print(x, y)
                         cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)
 
         # Draw the rectangle
@@ -64,7 +84,6 @@ def on_press(key):
 endthread=True
 lines=[]
 
-
 shared_frame = None
 def track():
     global persons, shared_frame, endthread,cap,resized,prev_gray, lines,alttracking
@@ -77,19 +96,14 @@ def track():
                 if not cap.isOpened():
                     break
                 if len(persons)>0:
-                    # persons[:] = [person for person in persons if person.update(frame)[0] or not person.unpair()]
                     if(resized or not sizechange):
-                        
                         for person in persons:
-                            # shared_frame = cv2.cvtColor(shared_frame, cv2.COLOR_BGR2GRAY)
                             if person.update(shared_frame)==False or alttracking:
                                 frame_height, frame_width = shared_frame.shape[:2]
                                 notgray=cv2.resize(shared_frame, (160,120), interpolation=cv2.INTER_CUBIC)
-                                 
                                 if alttracking:
                                     person.tracking=False
                                 lost=person.altnn(notgray,int(frame_width/160),int(frame_height/120))
-                                
                                 if lost:
                                     persons.remove(person)
                                     print("got rid of him")
@@ -112,7 +126,6 @@ def on_release(key):
     global key_pressed , key_held
     try:
         if key.char and key.char == key_pressed:
-           
             key_pressed = None  # Reset the key state
             mc.none()
             key_held=False
@@ -165,10 +178,6 @@ def callpreset(preset):
     delay=time.time()
     mc.preset(preset)
     presetcalled=True
-    # if preset==1:
-    #     boundx=100
-    # else:
-    #     boundx=175
     print("preset called!!!")
     detect=False    
     pass
@@ -314,14 +323,6 @@ def trackmovment(head,frame,boundx,boundy,traking):
                 else:
                     mc.r=0
                     mc.L=0
-                # if (head.w<(frame.shape[1]/8)): #zoom
-                #     mc.zoom=1
-                #     movment=True
-                # elif (head.w>(frame.shape[1]/1.5)):
-                #     mc.zoom=-1
-                #     movment=True
-                # else:
-                #     mc.zoom=0
                 if movment==False and ptzmode ==False:  #micromovent
                     microturn=head.cx-(frame.shape[1]/2)
                     if abs(microturn)>40:
@@ -414,9 +415,6 @@ def directmode():
  
 
 screenwidth=1920
-# cv2.namedWindow("My Face Detection Project",cv2.WINDOW_FULLSCREEN)
-# cv2.setWindowProperty("My Face Detection Project", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-# cv2.moveWindow("My Face Detection Project", screenwidth, 0)
 
 while True:
     resized=False
@@ -458,8 +456,6 @@ while True:
             faces=[((int(x/scale_factor)),(int(y/scale_factor)),(int(w/scale_factor)),(int(h/scale_factor))) for (x,y,w,h) in faces]
             if face_detection_interval>20 and len(persons)>0:
                 faces = face_cascade.detectMultiScale(gray,1.5, 8, minSize=(100, 100))
-                # if len(faces)>0: 
-                #     print("found "+str(len(faces)))
             if nn and len(faces)==0:
                 if face_detection_interval==2 or face_detection_interval>20:
                         small_frame = cv2.resize(frame, None, fx=scale_factor2, fy=scale_factor2, interpolation=cv2.INTER_LINEAR)
@@ -572,13 +568,10 @@ while True:
         # Increment frame index
         frame_idx += 1
         if len(persons)>0:
-            # if adjustbounds:
-            #     boundx=int(abs(persons[selected].rect.w*2-frame.shape[1])/2)
-            #     adjustbounds=False
             if (selected+1)>len(persons):
                 selected=0
             
-            if interupt==False:
+            if interupt==False and args.communicate:
                 trackmovment(persons[selected].rect,frame,boundx,boundy,persons[selected].tracking)
             else:
                 if delay+1<time.time():

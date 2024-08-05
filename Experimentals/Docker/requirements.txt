@@ -1,0 +1,7 @@
+Flask
+opencv-python-headless
+numpy
+pynput
+torch
+Pillow
+Image
