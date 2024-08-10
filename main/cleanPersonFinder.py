@@ -483,7 +483,8 @@ def get_args():
 def main():
     global args, mc, debug, endthread, persons, cap, resized, prev_gray, shared_frame, key_pressed, key_held, detect, presetcalled, alttracking, interupt, delay, listener
     global showbounds,autocut,direct,ac,lastcam,gray,frame,face_cascade,profile_face,upperbody,sizechange,screenwidth,mtcnn,resnet,nn,scale_factor2,selected,searching
-    global boundx,boundy,faces,frame_idx,face_detection_interval,box
+    global boundx,boundy,faces,frame_idx,face_detection_interval,box,lastpreset
+    
     searching=False
     showbounds = False
     args = get_args()
@@ -500,6 +501,7 @@ def main():
     shared_frame = None
     detect = True
     resized = False
+    lastpreset=0
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     profile_face = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
     upperbody = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_upperbody.xml')
