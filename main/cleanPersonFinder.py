@@ -27,26 +27,6 @@ debug = True
 autocut = False
 direct = False
 
-# Function to set up argument parser
-def get_parser():
-    cameraIP = "192.168.20.205"
-    port = 1259
-    PTZ = False
-    TCP = False
-    debug = True
-    communicate = True
-    parser = argparse.ArgumentParser(description="Initial settings for GORT")
-    parser.add_argument("-camera_IP", help=f"CAMA, CAM3, CAM5, CAM6 -- default {cameraIP}", default=cameraIP)
-    parser.add_argument("-port", type=int, help=f"camera IP port -- default {port}", default=port)
-    parser.add_argument("-PTZ", help=f"PTZ mode (True or False) -- default {PTZ}", default=PTZ)
-    parser.add_argument("-TCP", help=f"TCP mode (True or False) -- default {TCP}", default=TCP)
-    parser.add_argument("-debug", help=f"Debug mode (True or False) -- default {debug}", default=debug)
-    parser.add_argument("-communicate", help=f"Whether Gort should send commands out (True or False) -- default {communicate}", default=communicate)
-    return parser
-
-# Function to get parsed arguments
-def get_args():
-    return get_parser().parse_args()
 
 # Function to handle key press events
 def on_press(key):
@@ -472,6 +452,33 @@ def handleGUI():
         cv2.moveWindow("GORT", 0, -50)
     else:
         cv2.imshow("GORT", frame)
+
+# Function to set up argument parser
+#main engineer$ python3 cleanPersonFinder.py -camera_IP 192.168.20.206 -TCP
+def get_parser():
+    cameraIP = "192.168.20.206"
+    port = 1259
+    PTZ = False
+    TCP = True
+    debug = False
+    communicate = True
+    UDP = False
+    parser = argparse.ArgumentParser(description="Initial settings for GORT")
+    parser.add_argument("-camera_IP", help=f"CAMA, CAM3, CAM5, CAM6 -- default {cameraIP}", default=cameraIP)
+    parser.add_argument("-port", type=int, help=f"camera IP port -- default {port}", default=port)
+    parser.add_argument("-PTZ",  action='store_true', help=f"PTZ mode (True or False) -- default {PTZ}", default=PTZ)
+    parser.add_argument("-UDP", action='store_true', help=f"UDP mode (True or False) -- default {UDP}", default=UDP)
+    parser.add_argument("-debug",action='store_true', help=f"Debug mode (True or False) -- default {debug}", default=debug)
+    parser.add_argument("-communicate", help=f"Whether Gort should send commands out (True or False) -- default {communicate}", default=communicate)
+    if UDP:
+        TCP=False
+    return parser
+
+# Function to get parsed arguments
+def get_args():
+    return get_parser().parse_args()
+
+#################################################################################################################################################################################
 # Main function
 def main():
     global args, mc, debug, endthread, persons, cap, resized, prev_gray, shared_frame, key_pressed, key_held, detect, presetcalled, alttracking, interupt, delay, listener
@@ -499,7 +506,7 @@ def main():
     sizechange = True
     presetcalled = False
     
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     persons = []
     frame_idx = 0
     face_detection_interval = 1
