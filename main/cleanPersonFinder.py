@@ -454,12 +454,11 @@ def handleGUI():
         cv2.imshow("GORT", frame)
 
 # Function to set up argument parser
-#main engineer$ python3 cleanPersonFinder.py -camera_IP 192.168.20.206 -TCP
+#main engineer$ python3 cleanPersonFinder.py -camera_IP 192.168.20.206
 def get_parser():
     cameraIP = "192.168.20.206"
     port = 1259
     PTZ = False
-    TCP = True
     debug = False
     communicate = True
     UDP = False
@@ -470,8 +469,6 @@ def get_parser():
     parser.add_argument("-UDP", action='store_true', help=f"UDP mode (True or False) -- default {UDP}", default=UDP)
     parser.add_argument("-debug",action='store_true', help=f"Debug mode (True or False) -- default {debug}", default=debug)
     parser.add_argument("-communicate", help=f"Whether Gort should send commands out (True or False) -- default {communicate}", default=communicate)
-    if UDP:
-        TCP=False
     return parser
 
 # Function to get parsed arguments
@@ -490,7 +487,7 @@ def main():
     args = get_args()
     debug = args.debug
 
-    mc = M.Mcontrol(args.camera_IP, args.TCP, args.port)
+    mc = M.Mcontrol(args.camera_IP, args.UDP, args.port)
     
     if not debug:
         ac = ATEMController.ATEMControl("192.168.20.177")
@@ -508,7 +505,7 @@ def main():
     sizechange = True
     presetcalled = False
     
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     persons = []
     frame_idx = 0
     face_detection_interval = 1

@@ -63,7 +63,7 @@ def execute_commandUDP(cam_IP, command, port):
     s.close()
 
 class Mcontrol:
-    def __init__(self,ip,tcp, port):
+    def __init__(self,ip,UDP, port):
         self.u = 0
         self.d = 0
         self.L = 0
@@ -73,7 +73,7 @@ class Mcontrol:
         self.zoom = 0
         self.oldval = [0, 0, 0, 10]  # u, d, L, r, z
         self.ip = ip
-        self.tcp=tcp
+        self.tcp=not UDP
         self.port=port
 
     def keypressed(self, keycode, keyheld):
