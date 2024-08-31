@@ -11,6 +11,7 @@ from facenet_pytorch import MTCNN, InceptionResnetV1
 from PIL import Image
 import argparse
 from flask import Flask, request
+import traceback
 
 print(cv2.__version__)
 
@@ -26,7 +27,7 @@ ptzmode = False
 debug = True
 autocut = False
 direct = False
-
+quitprogram =False
 
 # Function to handle key press events
 def on_press(key):
@@ -34,6 +35,7 @@ def on_press(key):
     try:
         if key.char:  # Only consider printable keys
             key_pressed = key.char
+            print(mc.extract_position())
             if mc.keypressed(key_pressed, key_held) == False:
                 controls(key_pressed)
                 key_held = True
@@ -70,7 +72,7 @@ def draw_boxes(frame, people):
 
 # Function to track movement
 def track():
-    global persons, shared_frame, endthread, cap, resized, prev_gray, lines, alttracking
+    global persons, shared_frame, endthread, cap, resized, prev_gray, alttracking
     while not endthread:
         if shared_frame is None:
             time.sleep(0.0001)
@@ -178,7 +180,7 @@ def trackmovement(head, frame, boundx, boundy, tracking):
 
 # Function to handle controls based on key pressed
 def controls(key_pressed):
-    global boundy, boundx, frame, showbounds, persons, selected, detect, alttracking, direct, autocut
+    global boundy, boundx, frame, showbounds, persons, selected, detect, alttracking, direct, autocut,mc
 
     key_actions = {
         "f": lambda: update_bound("x", 25),
@@ -255,7 +257,7 @@ def directmode():
             callpreset(lastpreset)
 # Function to handle stream deck commands
 def stream_deck_command(command):
-    global mc, interupt, delay, persons, detect, boundx, boundy, showbounds, autocut, direct
+    global mc, interupt, delay, persons, detect, boundx, boundy, showbounds, autocut, direct,selected
     interupt = True
     print(command)
     delay = time.time()
@@ -316,6 +318,11 @@ def stream_deck_command(command):
         autocut = direct
     elif command == "toggle":
         detect = not detect
+    elif command == "switch":
+        selected += 1
+        if len(persons) > 0:
+                if (selected + 1) > len(persons):
+                    selected = 0
 
 # Flask route to handle preset calls
 @app.route('/callpreset', methods=['POST'])
@@ -480,7 +487,7 @@ def get_args():
 def main():
     global args, mc, debug, endthread, persons, cap, resized, prev_gray, shared_frame, key_pressed, key_held, detect, presetcalled, alttracking, interupt, delay, listener
     global showbounds,autocut,direct,ac,lastcam,gray,frame,face_cascade,profile_face,upperbody,sizechange,screenwidth,mtcnn,resnet,nn,scale_factor2,selected,searching
-    global boundx,boundy,faces,frame_idx,face_detection_interval,box,lastpreset
+    global boundx,boundy,faces,frame_idx,face_detection_interval,box,lastpreset,quitprogram
     
     searching=False
     showbounds = False
@@ -592,6 +599,7 @@ def main():
             print("not ret")
             cap = cv2.VideoCapture(0)
         if cv2.waitKey(1) & 0xFF == ord('q'):
+            quitprogram=True
             break
     endthread = True
     cap.release()
@@ -600,6 +608,15 @@ def main():
         listener.stop()
     else:
         ac.disconnect()
+while not quitprogram:
+    try:
+        if __name__ == "__main__":
+            main()
+    except Exception as e:
+            exception_str = traceback.format_exc()
+            timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+            with open('error_log.txt', 'a') as file:
+                file.write(f"{timestamp} - {exception_str}\n")
+            print("An error occurred. Check 'error_log.txt' for details. Restarting...")
 
-if __name__ == "__main__":
-    main()
+    

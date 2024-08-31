@@ -69,7 +69,7 @@ class Mcontrol:
         self.L = 0
         self.r = 0
         self.Senitivityx = 10
-        self.Senitivityy = 2
+        self.Senitivityy = 10
         self.zoom = 0
         self.oldval = [0, 0, 0, 10]  # u, d, L, r, z
         self.ip = ip
@@ -97,7 +97,8 @@ class Mcontrol:
             self.zoom = -1
             valid = True
         if valid and not keyheld:
-            self.Senitivityx = 10
+            self.Senitivityx = 14
+            self.Senitivityy = 14
             self.write()
         return valid
 
@@ -205,3 +206,32 @@ class Mcontrol:
                 execute_commandTCP(self.ip, camera_command, self.port)
             else:
                 execute_commandUDP(self.ip, camera_command, self.port)
+    def extract_position(self):
+        server_address=("192.168.20.206",1259)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(server_address)
+        message = bytes.fromhex('81090612FF')
+        return_pos = []
+        try:
+            # Send data
+            # print ('sending "%s"' % message)
+            sock.sendall(message)
+
+            # Look for the response
+            amount_received = 0
+            amount_expected = 11
+            
+            while amount_received < amount_expected:
+                data = sock.recv(16)
+                amount_received += len(data)
+                # print('received "%s"' % data)
+                for c in range(len(data)):
+                    v = int(str(data[c]),0)
+                    if c in range(2,10):
+                        return_pos.append(v)
+                    # print(f"{c} : {hex(v)} --> {v}")
+
+
+        finally:
+            sock.close()
+        return return_pos
