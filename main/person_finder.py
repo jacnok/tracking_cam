@@ -29,14 +29,14 @@ def get_parser():
     cameraIP = "192.168.20.205"
     port = 1259
     PTZ=False
-    TCP=True
+    UDP=False
     debug=True
     communicate=False
     parser = argparse.ArgumentParser(description="intial setings for GORT")
     parser.add_argument("-camera_IP", help=f"CAMA, CAM3, CAM5, CAM6 -- default {cameraIP}", default=cameraIP)
     parser.add_argument("-port", type=int, help=f"camera IP port -- default {port}", default=port)
     parser.add_argument("-PTZ", help=f"PTZ mode (True or False) -- default {PTZ}", default=PTZ)
-    parser.add_argument("-TCP", help=f"TCP mode (True or False) -- default {TCP}", default=TCP)
+    parser.add_argument("-TCP", help=f"UDP mode (True or False) -- default {UDP}", default=UDP)
     parser.add_argument("-debug", help=f"debug mode (True or False) -- default {debug}", default=debug)
     parser.add_argument("-communicate", help=f"Whether Gort should send commands out (True or False) -- default {communicate}", default=communicate)
     return parser
@@ -406,7 +406,7 @@ def directmode():
         searching=False
         lastpreset=0
     if searching:
-        if delay+4<time.time():
+        if delay+1<time.time():
             if lastpreset>5:
                 lastpreset=1
             else:
@@ -516,7 +516,10 @@ while True:
                 if val is not None:
                     new_person = P.Person(tracker_type='KCF')
                     new_person.init(frame, val)
-                    new_person.confidence=50
+                    if direct:
+                        new_person.confidence=10
+                    else:
+                        new_person.confidence=50
                     new_person.tracking=False
                     persons.append(new_person)               
                 presetcalled=False

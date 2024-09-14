@@ -249,7 +249,7 @@ def directmode():
         searching=False
         lastpreset=0
     if searching:
-        if delay+4<time.time():
+        if delay+1<time.time():
             if lastpreset>5:
                 lastpreset=1
             else:
@@ -367,7 +367,7 @@ def detectfaces(face_detection_interval):
     return faces
 
 def handlepeaple(faces):
-    global persons, frame, box, endthread, face_detection_interval, detect, presetcalled
+    global persons, frame, box, endthread, face_detection_interval, detect, presetcalled,direct
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y - 1), (x + w + 1, y + h + 1), (255, 0, 0), 10)
         new_face = (x, y, w, h)
@@ -412,7 +412,10 @@ def handlepeaple(faces):
                 if val is not None:
                     new_person = P.Person(tracker_type='KCF')
                     new_person.init(frame, val)
-                    new_person.confidence = 50
+                    if direct:
+                        new_person.confidence=10
+                    else:
+                        new_person.confidence=50
                     new_person.tracking = False
                     persons.append(new_person)
                 presetcalled = False
