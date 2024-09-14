@@ -8,26 +8,28 @@ class ATEMControl:
         self.switcher = PyATEMMax.ATEMMax()
         self.ip = ip
         self.switcher.connect(ip)
+        print (self.switcher.waitForConnection(timeout=2))
+
 
     def switchcam(self,cam):
         # ip = "10.0.0.100"
         counter = 0
         sent=False
         while sent==False:
-            if self.switcher.waitForConnection(timeout=5):
+            # if self.switcher.waitForConnection(timeout=10):
                 
                 self.switcher.setProgramInputVideoSource(0, cam)
                 sent=True
-            else:
-                print("Connection failed")
-                counter+=1
-                if counter>5:
-                    print("Connection failed too many times")
-                    sent=True
-                    break
-                else:
-                    print("Trying again")
-                    self.switcher.connect(self.ip) 
+            # else:
+            #     print("Connection failed")
+            #     counter+=1
+            #     if counter>5:
+            #         print("Connection failed too many times")
+            #         sent=True
+            #         break
+            #     else:
+            #         print("Trying again")
+            #         self.switcher.connect(self.ip) 
         print(f"[{time.ctime()}] Switched to camera {cam}")
 
     def softswitchcam(self,cam):
@@ -35,27 +37,28 @@ class ATEMControl:
         counter = 0
         sent=False
         while sent==False:
-            if self.switcher.waitForConnection(timeout=5):
+            # if self.switcher.waitForConnection(timeout=5):
                 
                 self.switcher.setPreviewInputVideoSource(0, cam)
                 self.switcher.execAutoME(0)
+                # self.switcher.setTransitionPreviewEnabled(0,True)
 
                 sent=True
-            else:
-                print("Connection failed")
-                counter+=1
-                if counter>5:
-                    print("Connection failed too many times")
-                    sent=True
-                    break
-                else:
-                    print("Trying again")
-                    self.switcher.connect(self.ip) 
-        print(f"[{time.ctime()}] Switched to camera {cam}")
+        #     else:
+        #         print("Connection failed")
+        #         counter+=1
+        #         if counter>5:
+        #             print("Connection failed too many times")
+        #             sent=True
+        #             break
+        #         else:
+        #             print("Trying again")
+        #             self.switcher.connect(self.ip) 
+        # print(f"[{time.ctime()}] Switched to camera {cam}")
     def findcam(self): #script takes a while to run use threading
         found = False
         for i in range(1, 20):
-            for r in range(1, 5):
+            for r in range(1, 20):
                 if self.switcher.tally.bySource.flags[r].program:
                     found = True
                     break
@@ -67,14 +70,14 @@ class ATEMControl:
     def disconnect(self):
         self.switcher.disconnect()
         print("Disconnected from ATEM")
-
-# ip = "10.0.0.100"
-# ac = ATEMController(ip)
-# for i in range(1,5):
-#     ac.switchcam(i)
-#     time.sleep(2)
-# for i in range(1,5):
-#     ac.softswitchcam(i)
-#     time.sleep(2)
-# print (ac.findcam())
-# ac.disconnect()
+if __name__ == "__main__":
+    ip = "192.168.20.177"
+    ac = ATEMControl(ip)
+    # for i in range(1,5):
+    #     ac.switchcam(i)
+    #     time.sleep(2)
+    for i in range(1,5):
+        ac.softswitchcam(i)
+        time.sleep(2)
+    print (ac.findcam())
+    ac.disconnect()
