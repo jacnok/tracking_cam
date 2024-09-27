@@ -29,9 +29,9 @@ def get_parser():
     cameraIP = "192.168.20.205"
     port = 1259
     PTZ=False
-    UDP=False
+    UDP=True
     debug=True
-    communicate=False
+    communicate=True
     parser = argparse.ArgumentParser(description="intial setings for GORT")
     parser.add_argument("-camera_IP", help=f"CAMA, CAM3, CAM5, CAM6 -- default {cameraIP}", default=cameraIP)
     parser.add_argument("-port", type=int, help=f"camera IP port -- default {port}", default=port)

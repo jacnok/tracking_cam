@@ -1,0 +1,455 @@
+2024-09-25 19:03:12 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 752, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 704, in main
+    directmode()
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 362, in directmode
+    args=(persons[0].roi, target)
+          ~~~~~~~^^^
+IndexError: list index out of range
+
+2024-09-25 19:04:21 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 752, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 704, in main
+    directmode()
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 356, in directmode
+    elif not facial_thread and persons[selected].roi != None:
+                               ~~~~~~~^^^^^^^^^^
+IndexError: list index out of range
+
+2024-09-25 19:37:44 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 752, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 732, in main
+    handleGUI()
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 547, in handleGUI
+    draw_boxes(frame, [person for person in persons if person.bbox is not None])
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 60, in draw_boxes
+    if person.prev_pts is not None:
+       ^^^^^^^^^^^^^^^
+AttributeError: 'Person' object has no attribute 'prev_pts'
+
+2024-09-25 20:15:38 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 754, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 706, in main
+    directmode()
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 363, in directmode
+    if delay+2<time.time(): # time inbetween preset calls
+       ^^^^^
+UnboundLocalError: cannot access local variable 'delay' where it is not associated with a value
+
+2024-09-25 20:47:42 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:47:45 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:47:48 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:47:52 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:47:55 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:47:58 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:02 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:05 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:08 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:12 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:15 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:18 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:21 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:25 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:28 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:31 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:35 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:38 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:41 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:45 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:48 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:51 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:55 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:48:58 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:49:01 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:49:05 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:49:08 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 757, in <module>
+    runs+=1
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if len(faces) == 0:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:53:48 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 758, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if face_detection_interval == 2 or face_detection_interval > 20:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:53:52 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 758, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if face_detection_interval == 2 or face_detection_interval > 20:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:53:55 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 758, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if face_detection_interval == 2 or face_detection_interval > 20:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-25 20:53:58 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 758, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 703, in main
+    faces=detectfaces(face_detection_interval)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 468, in detectfaces
+    if face_detection_interval == 2 or face_detection_interval > 20:
+           ^^^^^
+NameError: name 'faces' is not defined
+
+2024-09-26 20:03:47 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 778, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 699, in main
+    ROI=shared_frame[max(0, int(persons[selected].rect.y-50)):int(persons[selected].rect.ey+50),
+                                ~~~~~~~^^^^^^^^^^
+IndexError: list index out of range
+
+2024-09-26 20:06:46 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 778, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 699, in main
+    ROI=shared_frame[max(0, int(persons[selected].rect.y-50)):int(persons[selected].rect.ey+50),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+2024-09-26 20:08:23 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 778, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 697, in main
+    if  not direct and not facial_thread and len(persons)>0 and shared_frame != None:
+                                                                ^^^^^^^^^^^^^^^^^^^^
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+
+2024-09-26 20:12:48 - Traceback (most recent call last):
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 778, in <module>
+    main()  # Your main function or logic goes here
+    ^^^^^^
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 724, in main
+    handlepeaple(faces)
+  File "D:\python_projects\tracking_cam\main\cleanPersonFinder.py", line 502, in handlepeaple
+    persons.remove(person)
+ValueError: list.remove(x): x not in list
+

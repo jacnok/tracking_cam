@@ -19,66 +19,60 @@ class Person:
         self.tracker_types = {
             'CSRT': cv2.TrackerCSRT_create,
             'KCF': cv2.TrackerKCF_create,
-            'GOTURN': cv2.TrackerGOTURN_create
+            'GOTURN':cv2.TrackerGOTURN_create
         }
-        self.recentPair = False
+        self.recentPair=False
         self.tracker = self.tracker_types[tracker_type]()
         self.bbox = None
-        self.rect = R.Rect()
-        self.confidence = 4
-        self.tracking = True
-        self.prev_pts = None
-        self.shirttrack = None
-        self.shirttracking = False
-        self.roi = None
-        self.alive = None
-        self.oldx = None
-        self.movment = 0
+        self.rect=R.Rect()
+        self.confidence=4
+        self.tracking=True
+        self.shirttrack=None
+        self.shirttracking=False
+        self.roi=None
+        self.alive=None
+        self.oldx=None
+        self.movment=0
 
     def init(self, frame, bbox):
-        self.alive = time.time()
-        self.confidence = 20
-        self.prev_pts = None
+        self.alive=time.time()
+        self.confidence=20
         self.bbox = bbox
         self.rect.set(bbox)
-        self.tracker = cv2.TrackerKCF_create()
+        self.tracker=cv2.TrackerKCF_create()
         self.tracker.init(frame, bbox)
-        self.oldx = self.rect.cx
-        self.update_roi(frame)
-
-    def update_roi(self, frame):
+        self.oldx=self.rect.cx
         try:
             self.roi = cv2.resize(frame[max(0, int(self.rect.y)):int(self.rect.ey), max(0, int(self.rect.x)):int(self.rect.ex)], (100, 200))
         except Exception as e:
-            self.tracking = False
+            self.tracking=False
             print(e)
-            print(self.rect.x, self.rect.y, self.rect.ex, self.rect.ey)
-        self.tracking = True
-
+            print (self.rect.x,self.rect.y,self.rect.ex,self.rect.ey)    
+        self.tracking=True
     def update(self, frame):
-        self.recentPair = False
+        
+        self.recentPair=False
         try:
             success, bbox = self.tracker.update(frame)
             if success:
                 self.bbox = bbox
                 self.rect.set(bbox)
-                self.movment += abs(self.oldx - self.rect.cx)
-                if time.time() - self.alive > 3 and self.movment > 10:
-                    self.tracking = False
-                # self.update_roi(frame)
+                self.movment+=abs(self.oldx-self.rect.cx)
+                if time.time()-self.alive>3:
+                    if self.movment>10:
+                        self.tracking=False
+                # self.roi = cv2.resize(frame[int(self.rect.y):int(self.rect.ey), int(self.rect.x):int(self.rect.ex)], (100, 200)) 
             else:
-                self.tracking = False
-            self.oldx = self.rect.cx
+                self.tracking=False
+            self.oldx=self.rect.cx
             return success
         except Exception as e:
             print(e)
-            self.tracking = False
+            self.tracking=False
             return False
-
     def get_image(self):
         return self.roi
-
-    def altnn(self, notgray, scalex, scaley):
+    def altnn(self,notgray,scalex,scaley):
         if not self.shirttracking:
             results = model(notgray)
             for box in results.xyxy[0]:

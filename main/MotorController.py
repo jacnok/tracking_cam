@@ -213,8 +213,6 @@ class Mcontrol:
         message = bytes.fromhex('81090612FF')
         return_pos = []
         try:
-            # Send data
-            # print ('sending "%s"' % message)
             sock.sendall(message)
 
             # Look for the response
@@ -230,8 +228,6 @@ class Mcontrol:
                     if c in range(2,10):
                         return_pos.append(v)
                     # print(f"{c} : {hex(v)} --> {v}")
-
-
         finally:
             sock.close()
         return return_pos

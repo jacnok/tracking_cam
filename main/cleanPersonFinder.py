@@ -12,6 +12,8 @@ from PIL import Image
 import argparse
 from flask import Flask, request
 import traceback
+from deepface import DeepFace
+import os
 
 print(cv2.__version__)
 
@@ -19,15 +21,24 @@ print(cv2.__version__)
 app = Flask(__name__)
 
 # Initial global variables
-boundx = 100
-boundy = 25
-delay = 0
-interupt = False
-ptzmode = False
-debug = True
-autocut = False
-direct = False
 quitprogram =False
+
+#main engineer$ python3 cleanPersonFinder.py -camera_IP 192.168.20.206
+def get_parser():
+    cameraIP = "192.168.20.205"
+    port = 1259
+    PTZ = False
+    debug = False
+    communicate = True
+    UDP = False
+    parser = argparse.ArgumentParser(description="Initial settings for GORT")
+    parser.add_argument("-camera_IP", help=f"CAMA, CAM3, CAM5, CAM6 -- default {cameraIP}", default=cameraIP)
+    parser.add_argument("-port", type=int, help=f"camera IP port -- default {port}", default=port)
+    parser.add_argument("-PTZ",  action='store_true', help=f"PTZ mode (True or False) -- default {PTZ}", default=PTZ)
+    parser.add_argument("-UDP", action='store_true', help=f"UDP mode (True or False) -- default {UDP}", default=UDP)
+    parser.add_argument("-debug",action='store_true', help=f"Debug mode (True or False) -- default {debug}", default=debug)
+    parser.add_argument("-communicate", help=f"Whether Gort should send commands out (True or False) -- default {communicate}", default=communicate)
+    return parser
 
 # Function to handle key press events
 def on_press(key):
@@ -35,7 +46,7 @@ def on_press(key):
     try:
         if key.char:  # Only consider printable keys
             key_pressed = key.char
-            print(mc.extract_position())
+            # print(mc.extract_position())
             if mc.keypressed(key_pressed, key_held) == False:
                 controls(key_pressed)
                 key_held = True
@@ -62,11 +73,6 @@ def draw_boxes(frame, people):
             color = (0, 255, 0)
         else:
             color = (0, 0, 255)
-            for person in persons:
-                if person.prev_pts is not None:
-                    for pts in zip(person.prev_pts):
-                        x, y = map(int, pts[0][0].ravel())  # Convert x and y to integers
-                        cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)
         # Draw the rectangle
         cv2.rectangle(frame, (int(p.rect.x), int(p.rect.y)), (int(p.rect.ex), int(p.rect.ey)), color, 2)
 
@@ -103,6 +109,108 @@ def track():
             prev_gray = gray.copy()
             shared_frame = None
     endthread = True
+
+
+def load_known_faces(known_faces_dir):
+    """
+    Loads known face images from the specified directory.
+    Each subdirectory within known_faces_dir should be named after the person
+    and contain images of that person.
+
+    Returns:
+        known_faces (dict): A dictionary mapping person names to a list of their face images.
+    """
+    known_faces = {}
+    if not os.path.exists(known_faces_dir):
+        print(f"Known faces directory '{known_faces_dir}' does not exist.")
+        return known_faces
+
+    for person_name in os.listdir(known_faces_dir):
+        person_dir = os.path.join(known_faces_dir, person_name)
+        if os.path.isdir(person_dir):
+            known_faces[person_name] = []
+            for filename in os.listdir(person_dir):
+                if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+                    img_path = os.path.join(person_dir, filename)
+                    img = cv2.imread(img_path)
+                    if img is not None:
+                        known_faces[person_name].append(img)
+                        print(f"Loaded image for {person_name}: {filename}")
+                    else:
+                        print(f"Failed to load image {img_path}")
+    return known_faces
+# ----------------------- Face Verification Function -----------------------
+
+def verify_faces(face_img, known_faces):
+    """
+    Verifies the detected face against all known faces.
+
+    Args:
+        face_img (numpy.ndarray): The detected face image.
+        known_faces (dict): Dictionary mapping names to lists of known face images.
+    """
+    global ID, facial_thread, persons, selected,presetcalled
+    try:
+        for name, images in known_faces.items():
+            for known_img in images:
+                # Perform face verification
+                result = DeepFace.verify(
+                    face_img,
+                    known_img,
+                    model_name="Dlib",           # Choose appropriate model
+                    detector_backend="skip",      # Use OpenCV for face detection
+                    enforce_detection=True
+                )
+                print(result["distance"])
+                if result["distance"]<.09:
+                    ID = (True, name)
+                    persons.remove(persons[selected])
+                    print("got rid of known face")
+                    return  # Stop after finding the first match
+        # If no match is found after checking all known faces
+        ID = (False, "Target")
+        presetcalled=False
+        print("No Match found")
+    except Exception as e:
+        print(f"Exception in face verification: {e}")
+        ID = (False, "Target")
+        presetcalled=False
+    finally:
+        facial_thread = False
+
+def verify_one_face(face_img, past_face):
+    """
+    Verifies the detected face against all known faces.
+
+    Args:
+        face_img (numpy.ndarray): The detected face image.
+        known_faces (dict): Dictionary mapping names to lists of known face images.
+
+    Sets:
+        global face_match: True if a match is found, False otherwise.
+        global matched_name: Name of the matched person if a match is found.
+    """
+    global ID, facial_thread 
+    try:
+        
+        result = DeepFace.verify(
+            face_img,
+            past_face,
+            model_name="Dlib",           # Choose appropriate model
+            detector_backend="skip",      # Use OpenCV for face detection
+            enforce_detection=True
+        )
+        if result['verified']:
+            ID = (True, "Target")
+            return  # Stop after finding the first match
+        # If no match is found after checking all known faces
+        ID = (False, "Target")
+        print("No Match found")
+    except Exception as e:
+        print(f"Exception in face verification: {e}")
+        ID = (False, "Target")
+    finally:
+        facial_thread = False
 
 # Function to track movement based on bounding box and head position
 def trackmovement(head, frame, boundx, boundy, tracking):
@@ -190,6 +298,7 @@ def controls(key_pressed):
         "b": lambda: update_selected(-1),
         "n": lambda: update_selected(1),
         "r": lambda: persons.clear(),
+        "y": lambda: callpreset(1),
         "e": lambda: toggle("detect"),
         "t": lambda: toggle("alttracking"),
         "p": toggle_direct_autocut
@@ -219,7 +328,8 @@ def toggle(var_name):
     print(globals()[var_name])
 
 def toggle_direct_autocut():
-    global direct, autocut
+    global direct, autocut,target
+    target=None
     direct = not direct
     autocut = direct
 
@@ -231,33 +341,64 @@ def callpreset(preset):
         for person in persons:
             persons.remove(person)
     delay = time.time()
-    mc.preset(preset)
+    if not debug:
+        mc.preset(preset)
     presetcalled = True
     print("Preset called!!!")
     detect = False
 def directmode():
-    global persons,ac,searching,autocut,lastpreset
-    print (searching)
+    global persons,ac,searching,autocut,lastpreset,ID,facial_thread,target,debug,selected,delay,shared_frame
     if len(persons)==0:
         searching=True
-    else:
+        ID=(False,"Target")
+    elif len(persons)==1:
+        if persons[selected].roi is not None and target is None:
+            # target=persons[selected].get_image()
+            target=shared_frame[max(0, int(persons[selected].rect.y-50)):int(persons[selected].rect.ey+50),
+                                     max(0, int(persons[selected].rect.x-100)):int(persons[selected].rect.ex+100)]
+            # cv2.putText(persons[selected].roi, "Target",(10, 150),cv2.FONT_HERSHEY_SIMPLEX,1,(0, 255, 0),1)
+            # persons[selected].target=True
+            print("Target acquired")
+            ID=(True,"Target")
         if searching:
-            if not debug:
-                ac.switchcam(5)
-            print("switched to cam 5")
-            autocut=True
-        searching=False
-        lastpreset=0
-    if searching:
-        if delay+1<time.time():
+            if ID[0]:
+                if not debug:
+                    ac.switchcam(5)
+                print("switched to cam 5")
+                autocut=True
+                searching=False
+                lastpreset=0
+            elif not facial_thread and delay+2>time.time():
+                        print(delay)
+                        if target is not None:
+                            facial_thread = True
+                            print("Starting face verification thread.")
+                            ROI=shared_frame[max(0, int(persons[selected].rect.y-50)):int(persons[selected].rect.ey+50),
+                                     max(0, int(persons[selected].rect.x-100)):int(persons[selected].rect.ex+100)]
+                            verification_thread = threading.Thread(
+                                target=verify_one_face,
+                                args=(ROI, target)
+                            )
+                        verification_thread.start()
+
+    elif len(persons)>1:
+        print("found multiple persons")
+        for person in persons:
+            persons.remove(person)
+    if searching and not facial_thread:
+        if delay+2<time.time(): # time inbetween preset calls
             if lastpreset>5:
                 lastpreset=1
             else:
                 lastpreset+=1
+            if debug:
+                print(f"calling preset {lastpreset}")
+                print(f"there was {len(persons)}")
+
             callpreset(lastpreset)
 # Function to handle stream deck commands
 def stream_deck_command(command):
-    global mc, interupt, delay, persons, detect, boundx, boundy, showbounds, autocut, direct,selected
+    global mc, interupt, delay, persons, detect, boundx, boundy, showbounds, autocut, direct,selected,target
     interupt = True
     print(command)
     delay = time.time()
@@ -314,6 +455,7 @@ def stream_deck_command(command):
         autocut = not autocut
         print(autocut)
     elif command == "direct":
+        target=None
         direct = not direct
         autocut = direct
     elif command == "toggle":
@@ -367,7 +509,7 @@ def detectfaces(face_detection_interval):
     return faces
 
 def handlepeaple(faces):
-    global persons, frame, box, endthread, face_detection_interval, detect, presetcalled,direct
+    global persons, frame, box, endthread, face_detection_interval, detect, presetcalled,direct,shared_frame,known_faces,selected,facial_thread
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y - 1), (x + w + 1, y + h + 1), (255, 0, 0), 10)
         new_face = (x, y, w, h)
@@ -405,7 +547,7 @@ def handlepeaple(faces):
                     persons.remove(peaple)
                     print("Removed")
                 print(peaple.confidence)
-    if presetcalled and len(persons) == 0 and detect:
+    if presetcalled and len(persons) == 0 and detect and not direct:
                 frame_height, frame_width = frame.shape[:2]
                 smaller = cv2.resize(frame, (160, 120), interpolation=cv2.INTER_CUBIC)
                 val = P.bodysearch(smaller, int(frame_width / 160), frame_height / 3)
@@ -418,9 +560,11 @@ def handlepeaple(faces):
                         new_person.confidence=50
                     new_person.tracking = False
                     persons.append(new_person)
-                presetcalled = False
+    if direct and presetcalled:
+        presetcalled = False
+
 def handleGUI():
-    global frame, showbounds, boundx, boundy, persons, frame_idx, detect, key_held, direct, autocut, selected, faces,debug
+    global frame, showbounds, boundx, boundy, persons, frame_idx, detect, key_held, direct, autocut, selected, faces,debug,target,targetcopy
     draw_boxes(frame, [person for person in persons if person.bbox is not None])
     if showbounds:
         cv2.line(frame, (boundx, 0), (boundx, frame.shape[0]), (0, 255, 0), 2)
@@ -451,6 +595,12 @@ def handleGUI():
             else:
                 persons.remove(person)
                 side_panel_new[:, i * 100:(i + 1) * 100] = np.zeros((200, 100, 3), dtype="uint8")
+        if target is not None:# show target in bottome of side panel
+            targetcopy=cv2.resize(target,(100,200))
+            side_panel_new[(max_faces-1) * 200: (max_faces) * 200, :] = targetcopy
+            # # put target over image
+            
+            cv2.putText(side_panel_new, "Target",(10, max_faces*200),cv2.FONT_HERSHEY_SIMPLEX,.7,(0, 255, 0),1)
     except Exception as e:
         print(e)
     frame = np.hstack((frame, side_panel_new))
@@ -464,22 +614,7 @@ def handleGUI():
         cv2.imshow("GORT", frame)
 
 # Function to set up argument parser
-#main engineer$ python3 cleanPersonFinder.py -camera_IP 192.168.20.206
-def get_parser():
-    cameraIP = "192.168.20.206"
-    port = 1259
-    PTZ = False
-    debug = False
-    communicate = True
-    UDP = False
-    parser = argparse.ArgumentParser(description="Initial settings for GORT")
-    parser.add_argument("-camera_IP", help=f"CAMA, CAM3, CAM5, CAM6 -- default {cameraIP}", default=cameraIP)
-    parser.add_argument("-port", type=int, help=f"camera IP port -- default {port}", default=port)
-    parser.add_argument("-PTZ",  action='store_true', help=f"PTZ mode (True or False) -- default {PTZ}", default=PTZ)
-    parser.add_argument("-UDP", action='store_true', help=f"UDP mode (True or False) -- default {UDP}", default=UDP)
-    parser.add_argument("-debug",action='store_true', help=f"Debug mode (True or False) -- default {debug}", default=debug)
-    parser.add_argument("-communicate", help=f"Whether Gort should send commands out (True or False) -- default {communicate}", default=communicate)
-    return parser
+
 
 # Function to get parsed arguments
 def get_args():
@@ -489,14 +624,22 @@ def get_args():
 # Main function
 def main():
     global args, mc, debug, endthread, persons, cap, resized, prev_gray, shared_frame, key_pressed, key_held, detect, presetcalled, alttracking, interupt, delay, listener
-    global showbounds,autocut,direct,ac,lastcam,gray,frame,face_cascade,profile_face,upperbody,sizechange,screenwidth,mtcnn,resnet,nn,scale_factor2,selected,searching
-    global boundx,boundy,faces,frame_idx,face_detection_interval,box,lastpreset,quitprogram
+    global showbounds,autocut,direct,ac,lastcam,gray,frame,face_cascade,profile_face,sizechange,screenwidth,mtcnn,resnet,scale_factor2,selected,searching
+    global boundx,boundy,faces,frame_idx,face_detection_interval,box,lastpreset,quitprogram,ID,target,known_faces,facial_thread,ptzmode,targetcopy
     
-    searching=False
-    showbounds = False
+    
     args = get_args()
     debug = args.debug
-
+    facial_thread=False
+    interupt = False
+    boundx = 100
+    boundy = 25
+    delay = 0
+    autocut = False
+    direct = False
+    ptzmode=args.PTZ
+    searching=False
+    showbounds = False
     mc = M.Mcontrol(args.camera_IP, args.UDP, args.port)
     
     if not debug:
@@ -511,7 +654,6 @@ def main():
     lastpreset=0
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     profile_face = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
-    upperbody = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_upperbody.xml')
     sizechange = True
     presetcalled = False
     
@@ -538,6 +680,11 @@ def main():
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     prev_gray = gray
     shared_frame = frame.copy()
+
+    target=None
+    targetcopy=None
+    known_faces = load_known_faces("known_faces")
+    ID=(False,"Target")
     
     screenwidth = 1920
     
@@ -550,6 +697,21 @@ def main():
             if not detect and delay + 0.9 < time.time():
                 detect = True
                 face_detection_interval = 1
+            # if not direct and not facial_thread:  #facial rec when preset called
+            #     if  len(persons)>0 and shared_frame is not None:
+            #         facial_thread = True
+            #         ROI=shared_frame[max(0, int(persons[selected].rect.y-50)):int(persons[selected].rect.ey+50),
+            #                             max(0, int(persons[selected].rect.x-100)):int(persons[selected].rect.ex+100)]
+            #         verification_thread = threading.Thread(
+            #                     target=verify_faces,
+            #                     args=(ROI, known_faces)
+            #                 )
+            #         verification_thread.start()
+            #         delay=time.time()
+            #         print("Verifying")
+            if delay+7< time.time():
+                presetcalled=False
+            
         if ret:
             if sizechange:
                 try:
@@ -611,15 +773,35 @@ def main():
         listener.stop()
     else:
         ac.disconnect()
-while not quitprogram:
-    try:
-        if __name__ == "__main__":
-            main()
-    except Exception as e:
+
+runs=0        
+if __name__ == "__main__":
+    while not quitprogram:
+        try:
+            runs+=1
+            main()  # Your main function or logic goes here
+        except Exception as e:
+            # Capture exception details
             exception_str = traceback.format_exc()
             timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-            with open('error_log.txt', 'a') as file:
-                file.write(f"{timestamp} - {exception_str}\n")
-            print("An error occurred. Check 'error_log.txt' for details. Restarting...")
 
-    
+            endthread = True
+            cap.release()
+            cv2.destroyAllWindows()
+            listener.stop()
+            # Create logs/crashes directory if it doesn't exist
+            folder_path = os.path.join(os.getcwd(), "logs", "Crashes")
+            os.makedirs(folder_path, exist_ok=True)
+
+            # Define error log file path and append the exception
+            file_path = os.path.join(folder_path, "error_log.txt")
+            with open(file_path, 'a') as file:
+                file.write(f"{timestamp} - {exception_str}\n")
+
+            # Print error and inform user about restart options
+            print("An error occurred. Check 'error_log.txt' in the 'logs/Crashes' folder for details.")
+            if runs>5:
+                quitprogram=True
+            time.sleep(1)  # Additional 1 second delay before restarting
+
+            
