@@ -173,12 +173,23 @@ def main():
 
         if not tracking or frame_idx % face_detection_interval == 0:
             faces = detect_faces(resized_frame, resized_gray, face_cascade, profile_face, mtcnn, scale_factor2)
-            if len(faces) > 0:
-                x, y, w, h = faces[0]
-                bbox = (x, y, w, h)
-                tracker = cv2.TrackerKCF_create()
-                tracker.init(resized_frame, bbox)
-                tracking = True
+            if len(faces) > 0 :
+                if not tracking:
+                    x, y, w, h = faces[0]
+                    bbox = (x, y, w, h)
+                    tracker = cv2.TrackerKCF_create()
+                    tracker.init(resized_frame, bbox)
+                    tracking = True
+                elif len(faces) > 1:
+                    for i in range(1, len(faces)):
+                        x, y, w, h = faces[i]
+                        if abs(center_x-(x+w//2)) < (resized_frame.shape[1]//6):
+                            bbox = (x, y, w, h)
+                            tracker = cv2.TrackerKCF_create()
+                            tracker.init(resized_frame, bbox)
+                            tracking = True
+                            return
+                
 
         if tracking:
             success, bbox = tracker.update(resized_frame)
@@ -198,7 +209,9 @@ def main():
         # Adjust ROI bounds
         x1 = max(0, center_x - half_roi_width)
         x2 = min(original_width, center_x + half_roi_width)
-        roi = original_frame[:, x1:x2] if x2 > x1 else original_frame
+        if x2==original_width:
+            x1=original_width-roi_width
+        roi = original_frame[:, x1:x2]
         roi = cv2.resize(roi, (roi_width, roi_height))
         # Write the ROI frame to the video
         video_writer.write(roi)
@@ -217,14 +230,14 @@ def main():
     cap.release()
     video_writer.release()
     cv2.destroyAllWindows()
-
+   
     # Combine audio and video
     combine_audio_video(video_output_path, video_input_path, final_output)
-
+    
     # Delete the intermediate ROI video
     if os.path.exists(video_output_path):
         os.remove(video_output_path)
         print(f"Deleted intermediate file: {video_output_path}")
-
 if __name__ == "__main__":
     main()
+os._exit(0)
