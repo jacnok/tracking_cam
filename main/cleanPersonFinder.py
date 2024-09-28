@@ -25,7 +25,7 @@ quitprogram =False
 
 #main engineer$ python3 cleanPersonFinder.py -camera_IP 192.168.20.206
 def get_parser():
-    cameraIP = "192.168.20.206"
+    cameraIP = "192.168.20.202"
     port = 1259
     PTZ = False
     debug = False
@@ -373,8 +373,8 @@ def directmode():
                         if target is not None:
                             facial_thread = True
                             print("Starting face verification thread.")
-                            ROI=shared_frame[max(0, int(persons[selected].rect.y-50)):int(persons[selected].rect.ey+50),
-                                     max(0, int(persons[selected].rect.x-100)):int(persons[selected].rect.ex+100)]
+                            ROI = shared_frame[max(0, int(persons[selected].rect.y - 50)):min(int(persons[selected].rect.ey + 50), shared_frame.shape[0]),
+                                max(0, int(persons[selected].rect.x - 100)):min(int(persons[selected].rect.ex + 100), shared_frame.shape[1])]
                             verification_thread = threading.Thread(
                                 target=verify_one_face,
                                 args=(ROI, target)
@@ -547,7 +547,7 @@ def handlepeaple(faces):
                     persons.remove(peaple)
                     print("Removed")
                 print(peaple.confidence)
-    if presetcalled and len(persons) == 0 and detect and not direct:
+    if presetcalled and len(persons) == 0 and detect :
                 frame_height, frame_width = frame.shape[:2]
                 smaller = cv2.resize(frame, (160, 120), interpolation=cv2.INTER_CUBIC)
                 val = P.bodysearch(smaller, int(frame_width / 160), frame_height / 3)
@@ -641,6 +641,7 @@ def main():
     searching=False
     showbounds = False
     mc = M.Mcontrol(args.camera_IP, args.UDP, args.port)
+    lastcam=4
     
     if not debug:
         ac = ATEMController.ATEMControl("192.168.20.177")
@@ -776,32 +777,5 @@ def main():
 
 runs=0        
 if __name__ == "__main__":
-    while not quitprogram:
-        try:
-            runs+=1
+    
             main()  # Your main function or logic goes here
-        except Exception as e:
-            # Capture exception details
-            exception_str = traceback.format_exc()
-            timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-
-            endthread = True
-            cap.release()
-            cv2.destroyAllWindows()
-            listener.stop()
-            # Create logs/crashes directory if it doesn't exist
-            folder_path = os.path.join(os.getcwd(), "logs", "Crashes")
-            os.makedirs(folder_path, exist_ok=True)
-
-            # Define error log file path and append the exception
-            file_path = os.path.join(folder_path, "error_log.txt")
-            with open(file_path, 'a') as file:
-                file.write(f"{timestamp} - {exception_str}\n")
-
-            # Print error and inform user about restart options
-            print("An error occurred. Check 'error_log.txt' in the 'logs/Crashes' folder for details.")
-            if runs>5:
-                quitprogram=True
-            time.sleep(1)  # Additional 1 second delay before restarting
-
-            
