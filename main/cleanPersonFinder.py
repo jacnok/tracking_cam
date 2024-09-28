@@ -25,7 +25,7 @@ quitprogram =False
 
 #main engineer$ python3 cleanPersonFinder.py -camera_IP 192.168.20.206
 def get_parser():
-    cameraIP = "192.168.20.205"
+    cameraIP = "192.168.20.206"
     port = 1259
     PTZ = False
     debug = False
