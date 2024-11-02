@@ -336,7 +336,8 @@ def toggle_direct_autocut():
 
 # Function to handle preset calls
 def callpreset(preset):
-    global persons, delay, presetcalled, detect, boundx,debug
+    global persons, delay, presetcalled, detect, boundx,debug,lastselctedy
+    lastselctedy=None
     while len(persons) > 0:
         for person in persons:
             persons.remove(person)
@@ -430,6 +431,7 @@ def stream_deck_command(command):
         while len(persons) > 0:
             for person in persons:
                 persons.remove(person)
+        lastselctedy=None
     elif command == "stop":
         detect = not detect
     if ptzmode:
@@ -489,27 +491,19 @@ def run_flask_app():
 def detectfaces(face_detection_interval):
     global persons, frame, face_cascade, profile_face, scale_factor2, gray, endthread,faces
     scale_factor = 0.9
-    small_gray = cv2.resize(gray, None, fx=scale_factor, fy=scale_factor)
-    if len(persons) == 0 or face_detection_interval < 10:
-        faces = face_cascade.detectMultiScale(small_gray, 1.3, 7, minSize=(100, 100))
-        if len(faces) == 0:
-            faces = profile_face.detectMultiScale(small_gray, 1.2, 4, minSize=(80, 80))
+    faces = ()
+    small_frame = cv2.resize(frame, None, fx=scale_factor2, fy=scale_factor2, interpolation=cv2.INTER_LINEAR)
+    small_frame_rgb = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+    boxes, _ = mtcnn.detect(small_frame_rgb)
+    if boxes is not None:
+        faces = [(int(x1 / scale_factor2), int(y1 / scale_factor2), int((x2 - x1) / scale_factor2), int((y2 - y1) / scale_factor2)) for (x1, y1, x2, y2) in boxes]
     if endthread and len(persons) > 0:
         endthread = False
         threading.Thread(target=track).start()
-    if face_detection_interval > 20 and len(persons) > 0:
-        faces = face_cascade.detectMultiScale(gray, 1.5, 8, minSize=(100, 100))
-    if len(faces) == 0:
-        if face_detection_interval == 2 or face_detection_interval > 20:
-            small_frame = cv2.resize(frame, None, fx=scale_factor2, fy=scale_factor2, interpolation=cv2.INTER_LINEAR)
-            small_frame_rgb = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
-            boxes, _ = mtcnn.detect(small_frame_rgb)
-            if boxes is not None:
-                faces = [(int(x1 / scale_factor2), int(y1 / scale_factor2), int((x2 - x1) / scale_factor2), int((y2 - y1) / scale_factor2)) for (x1, y1, x2, y2) in boxes]
     return faces
 
 def handlepeaple(faces):
-    global persons, frame, box, endthread, face_detection_interval, detect, presetcalled,direct,shared_frame,known_faces,selected,facial_thread
+    global persons, frame, box, endthread, face_detection_interval, detect, presetcalled,direct,shared_frame,known_faces,selected,facial_thread,lastselctedy
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y - 1), (x + w + 1, y + h + 1), (255, 0, 0), 10)
         new_face = (x, y, w, h)
@@ -533,9 +527,14 @@ def handlepeaple(faces):
                 matched = True
         if not matched:
             old_len = len(persons)
+
             new_person = P.Person(tracker_type='KCF')
             new_person.init(frame, new_face)
             persons.append(new_person)
+            if lastselctedy !=None:
+                if (new_person.rect.cy-lastselctedy)<100:
+                    selected=len(persons)-1
+                    lastselctedy=new_person.rect.cy
             if old_len == 0 and len(persons) > 0:
                 endthread = False
                 threading.Thread(target=track).start()
@@ -625,7 +624,7 @@ def get_args():
 def main():
     global args, mc, debug, endthread, persons, cap, resized, prev_gray, shared_frame, key_pressed, key_held, detect, presetcalled, alttracking, interupt, delay, listener
     global showbounds,autocut,direct,ac,lastcam,gray,frame,face_cascade,profile_face,sizechange,screenwidth,mtcnn,resnet,scale_factor2,selected,searching
-    global boundx,boundy,faces,frame_idx,face_detection_interval,box,lastpreset,quitprogram,ID,target,known_faces,facial_thread,ptzmode,targetcopy
+    global boundx,boundy,faces,frame_idx,face_detection_interval,box,lastpreset,quitprogram,ID,target,known_faces,facial_thread,ptzmode,targetcopy,lastselctedy
     
     
     args = get_args()
@@ -642,7 +641,7 @@ def main():
     showbounds = False
     mc = M.Mcontrol(args.camera_IP, args.UDP, args.port)
     lastcam=4
-    
+    lastselctedy=None
     if not debug:
         ac = ATEMController.ATEMControl("192.168.20.177")
     
@@ -750,8 +749,15 @@ def main():
                     face_detection_interval = 2
                     break
             if len(persons) > 0:
-                if (selected + 1) > len(persons):
+                if len (persons)>1 and lastselctedy is None:
+                    lastselctedy=persons[0].rect.cy
+                    for i, person in enumerate(persons):
+                        if person.rect.cy>=lastselctedy:
+                            selected=i
+                            lastselctedy=person.rect.cy
+                if len(persons) > 0 and selected >= len(persons):
                     selected = 0
+                    
                 if not interupt and args.communicate:
                     trackmovement(persons[selected].rect, frame, boundx, boundy, persons[selected].tracking)
                 else:
@@ -766,6 +772,7 @@ def main():
             cap = cv2.VideoCapture(0)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             quitprogram=True
+            # exit(0)
             break
     endthread = True
     cap.release()
