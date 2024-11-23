@@ -1,0 +1,47 @@
+import cv2
+import numpy as np
+import cyndilib
+
+# Initialize the NDI library
+cyndilib.initialize()
+
+# Find NDI sources on the network
+sources = cyndilib.find_sources()
+
+if len(sources) == 0:
+    print("No NDI sources found.")
+    exit()
+
+# Select the first NDI source (you can modify this to select a different one)
+source = sources[0]
+print(f"Using NDI Source: {source.name}")
+
+# Create an NDI receiver for the selected source
+receiver = cyndilib.Receiver(source)
+
+# Start receiving NDI frames
+while True:
+    # Get the next video frame
+    video_frame = receiver.get_video_frame()
+
+    if video_frame is None:
+        continue  # No frame received, skip to the next iteration
+
+    # Convert the NDI frame to a numpy array (OpenCV format)
+    image = np.array(video_frame.pixels).reshape((video_frame.height, video_frame.width, 4))
+
+    # Convert RGBA to BGR format for OpenCV
+    image_bgr = cv2.cvtColor(image, cv2.COLOR_RGBA2BGR)
+
+    # Display the frame using OpenCV
+    cv2.imshow("NDI Camera Stream", image_bgr)
+
+    # Check for the 'q' key to exit
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Release resources and close windows
+cv2.destroyAllWindows()
+receiver.release()
+cyndilib.cleanup()
+

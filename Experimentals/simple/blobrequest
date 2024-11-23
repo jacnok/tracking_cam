@@ -1,0 +1,51 @@
+import cv2
+import requests
+import numpy as np
+from io import BytesIO
+
+# The blob URL (replace this with your actual blob URL)
+blob_url = "http://192.168.20.206/f421e4cf-4f5e-42c6-b38f-36da4ea62a5f"
+
+# Fetch the video data from the blob URL
+response = requests.get(blob_url, stream=True)
+if response.status_code != 200:
+    print("Error: Unable to fetch video from blob URL.")
+    exit()
+
+# Initialize a buffer to store the video data as it is streamed
+video_buffer = BytesIO()
+
+# Write the stream content to the buffer
+for chunk in response.iter_content(chunk_size=1024):
+    video_buffer.write(chunk)
+
+# Rewind the buffer to the beginning
+video_buffer.seek(0)
+
+# Convert the binary data into a NumPy array and decode it
+video_bytes = np.frombuffer(video_buffer.read(), dtype=np.uint8)
+
+# Try to decode the video from the byte array
+cap = cv2.VideoCapture(cv2.imdecode(video_bytes, cv2.IMREAD_COLOR))
+
+if not cap.isOpened():
+    print("Error: Could not open video stream.")
+    exit()
+
+# Display the video
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        print("End of video or error reading the frame.")
+        break
+
+    # Display the frame
+    cv2.imshow("Video", frame)
+
+    # Wait for the 'q' key to quit
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Release resources
+cap.release()
+cv2.destroyAllWindows()
