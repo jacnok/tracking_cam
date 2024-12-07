@@ -65,7 +65,15 @@ def on_release(key):
             key_held = False
     except AttributeError:
         pass
-
+def get_camera_map():
+    return  {
+        "CAM2" : "192.168.20.205",
+        "CAM3" : "192.168.20.200",
+        "CAM4" : "192.168.20.204",
+        "CAM5" : "192.168.20.202",
+        "CAM6" : "192.168.20.201",
+        "CAM5A" : "192.168.20.206"
+    }
 # Function to draw bounding boxes around detected people
 def draw_boxes(frame, people):
     for p in people:
@@ -332,7 +340,15 @@ def toggle_direct_autocut():
     target=None
     direct = not direct
     autocut = direct
-
+def changecam(var_name):
+    global cameraIP,mc
+    cameraIP=get_camera_map[var_name]
+    mc.none()
+    try:
+       mc = M.Mcontrol(cameraIP, False, 1259)
+    except Exception as e:
+        print(e)
+    	
 
 # Function to handle preset calls
 def callpreset(preset):
@@ -342,8 +358,8 @@ def callpreset(preset):
         for person in persons:
             persons.remove(person)
     delay = time.time()
-    if not debug:
-        mc.preset(preset)
+    
+    mc.preset(preset)
     presetcalled = True
     print("Preset called!!!")
     detect = False
@@ -398,8 +414,12 @@ def directmode():
 
             callpreset(lastpreset)
 # Function to handle stream deck commands
+def settingschange(var_name):
+    changecam(var_name)
+    
 def stream_deck_command(command):
     global mc, interupt, delay, persons, detect, boundx, boundy, showbounds, autocut, direct,selected,target
+    global  presetcalled,ptzmode
     interupt = True
     print(command)
     delay = time.time()
@@ -428,10 +448,12 @@ def stream_deck_command(command):
         delay += 10
         mc.zoom = -1
     elif command == "reset":
+        delay = time.time()
+        presetcalled = True
         while len(persons) > 0:
             for person in persons:
                 persons.remove(person)
-        lastselctedy=None
+        # lastselctedy=None
     elif command == "stop":
         detect = not detect
     if ptzmode:
@@ -474,19 +496,22 @@ def handle_callpreset():
     data = request.json
     preset = data.get("preset")
     move = data.get("move")
+    setting = data.get("setting")
     print(move)
-    if preset is not None or move is not None:
+    if preset is not None or move is not None or setting is not None:
         if preset is not None:
             threading.Thread(target=callpreset, args=(preset,)).start()
         elif move is not None:
             threading.Thread(target=stream_deck_command, args=(move,)).start()
+        elif setting is not None:
+            threading.Thread(target=settingschange, args=(setting,)).start()
         return {"status": "success", "message": f"Preset {preset} called"}
     else:
         return {"status": "error", "message": "Missing preset parameter"}, 400
 
 # Function to run the Flask app
 def run_flask_app():
-    app.run(debug=False, port=5000)
+    app.run(host='0.0.0.0', port=5000)
     time.sleep(1)
 def detectfaces(face_detection_interval):
     global persons, frame, face_cascade, profile_face, scale_factor2, gray, endthread,faces
@@ -531,10 +556,15 @@ def handlepeaple(faces):
             new_person = P.Person(tracker_type='KCF')
             new_person.init(frame, new_face)
             persons.append(new_person)
-            if lastselctedy !=None:
-                if (new_person.rect.cy-lastselctedy)<100:
-                    selected=len(persons)-1
-                    lastselctedy=new_person.rect.cy
+            if presetcalled:
+                distance=100000
+                for person in persons:
+                    deltax = person.rect.cx -(640/2)
+                    deltay = person.rect.cy - (480/2)
+                    dist = (deltax ** 2) + (deltay ** 2)
+                    if dist<distance:
+                        distance=dist
+                        selected=persons.index(person)
             if old_len == 0 and len(persons) > 0:
                 endthread = False
                 threading.Thread(target=track).start()
@@ -660,7 +690,7 @@ def main():
     cap = cv2.VideoCapture(0)
     persons = []
     frame_idx = 0
-    face_detection_interval = 1
+    face_detection_interval = 10
     box = R.Rect()
     selected = 0
     scale_factor2 = 0.25 #used for mtcnn
@@ -770,7 +800,7 @@ def main():
         else:
             print("not ret")
             cap = cv2.VideoCapture(0)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(5) & 0xFF == ord('q'):
             quitprogram=True
             # exit(0)
             break
