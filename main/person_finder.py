@@ -23,7 +23,7 @@ app = Flask(__name__)
 # Initial global variables
 quitprogram =False
 
-#main engineer$ python3 cleanPersonFinder.py -camera_IP 192.168.20.206
+#main engineer$ python3 cleanPersonFinder.py -camera_IP 192.168.20.206 -debug
 def get_parser():
     cameraIP = "192.168.20.202"
     port = 1259
@@ -342,7 +342,7 @@ def toggle_direct_autocut():
     autocut = direct
 def changecam(var_name):
     global cameraIP,mc
-    cameraIP=get_camera_map[var_name]
+    cameraIP=get_camera_map()[var_name]
     mc.none()
     try:
        mc = M.Mcontrol(cameraIP, False, 1259)
