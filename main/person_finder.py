@@ -23,7 +23,7 @@ app = Flask(__name__)
 # Initial global variables
 quitprogram =False
 
-#main engineer$ python3 cleanPersonFinder.py -camera_IP 192.168.20.206 -debug
+#main engineer$ python3 person_finder.py -camera_IP 192.168.20.206 -debug
 def get_parser():
     cameraIP = "192.168.20.202"
     port = 1259
@@ -42,11 +42,28 @@ def get_parser():
 
 # Function to handle key press events
 def on_press(key):
-    global key_pressed, key_held, interupt, delay
+    global key_pressed, key_held, interupt, delay,selected, persons
     try:
         if key.char:  # Only consider printable keys
             key_pressed = key.char
             # print(mc.extract_position())
+            if key_pressed == "a" :
+                if len(persons) > 1:
+                    location=persons[selected].rect.cx
+                    next=240
+                    for person in persons:
+                        print(person.rect.cx-location) 
+                        if person.rect.cx-location<0 and abs(person.rect.cx-location)<next:
+                            next=person.rect.cx-location
+                            selected=persons.index(person)
+            elif key_pressed == "d":
+                if len(persons) > 1:
+                    location=persons[selected].rect.cx
+                    next=240
+                    for person in persons:
+                        if location-person.rect.cx<0 and abs(person.rect.cx-location)<next:
+                            next=location-person.rect.cx
+                            selected=persons.index(person)
             if mc.keypressed(key_pressed, key_held) == False:
                 controls(key_pressed)
                 key_held = True
@@ -303,8 +320,7 @@ def controls(key_pressed):
         "g": lambda: update_bound("x", -25),
         "c": lambda: update_bound("y", 25),
         "v": lambda: update_bound("y", -25),
-        "b": lambda: update_selected(-1),
-        "n": lambda: update_selected(1),
+        "b": lambda: update_selected(),
         "r": lambda: persons.clear(),
         "y": lambda: callpreset(1),
         "e": lambda: toggle("detect"),
@@ -325,10 +341,12 @@ def update_bound(axis, change):
         boundy = min(max(boundy + change, 0), frame.shape[0] // 2)
     showbounds = True
 
-def update_selected(change):
+def update_selected():
     global selected, persons
-    if 0 <= selected + change < len(persons):
-        selected += change
+    selected += 1
+    if len(persons) > 0:
+            if (selected + 1) > len(persons):
+                selected = 0
 
 def toggle(var_name):
     global detect, alttracking
@@ -338,8 +356,8 @@ def toggle(var_name):
 def toggle_direct_autocut():
     global direct, autocut,target
     target=None
-    direct = not direct
-    autocut = direct
+    # direct = not direct
+    # autocut = direct
 def changecam(var_name):
     global cameraIP,mc
     cameraIP=get_camera_map()[var_name]
@@ -433,10 +451,23 @@ def stream_deck_command(command):
         delay += 10
         mc.L = 1
         mc.Senitivityx = 10
+        if len(persons) > 1:
+            location=400
+            for person in persons:
+                if person.rect.cx<location:
+                    location=person.rect.cx
+                    selected=persons.index(person)
+            
     elif command == "right":
         delay += 10
         mc.Senitivityx = 10
         mc.r = 1
+        if len(persons) > 1:
+            location=0
+            for person in persons:
+                if person.rect.cx>location:
+                    location=person.rect.cx
+                    selected=persons.index(person)
     elif command == "stopmove":
         mc.Senitivityx = 2
         mc.none()
@@ -455,6 +486,7 @@ def stream_deck_command(command):
                 persons.remove(person)
         # lastselctedy=None
     elif command == "stop":
+        delay=time.time()+10
         detect = not detect
     if ptzmode:
         mc.Senitivityx = 1
@@ -739,7 +771,7 @@ def main():
             #         verification_thread.start()
             #         delay=time.time()
             #         print("Verifying")
-            if delay+7< time.time():
+            if delay+1< time.time():
                 presetcalled=False
             
         if ret:
