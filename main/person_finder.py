@@ -223,11 +223,15 @@ def verify_one_face(face_img, past_face):
             past_face,
             model_name="Dlib",           # Choose appropriate model
             detector_backend="skip",      # Use OpenCV for face detection
+            threshold=.04,
             enforce_detection=True
         )
         if result['verified']:
             ID = (True, "Target")
+            print("Match found")
+            print(result["distance"])
             return  # Stop after finding the first match
+        
         # If no match is found after checking all known faces
         ID = (False, "Target")
         print("No Match found")
@@ -325,7 +329,7 @@ def controls(key_pressed):
         "y": lambda: callpreset(1),
         "e": lambda: toggle("detect"),
         "t": lambda: toggle("alttracking"),
-        "p": toggle_direct_autocut
+        "p": lambda: toggle_direct_autocut()
     }
 
     action = key_actions.get(key_pressed)
@@ -356,8 +360,8 @@ def toggle(var_name):
 def toggle_direct_autocut():
     global direct, autocut,target
     target=None
-    # direct = not direct
-    # autocut = direct
+    direct = not direct
+    autocut = direct
 def changecam(var_name):
     global cameraIP,mc
     cameraIP=get_camera_map()[var_name]
@@ -387,14 +391,17 @@ def directmode():
         searching=True
         ID=(False,"Target")
     elif len(persons)==1:
-        if persons[selected].roi is not None and target is None:
-            # target=persons[selected].get_image()
-            target=shared_frame[max(0, int(persons[selected].rect.y-50)):int(persons[selected].rect.ey+50),
-                                     max(0, int(persons[selected].rect.x-100)):int(persons[selected].rect.ex+100)]
-            # cv2.putText(persons[selected].roi, "Target",(10, 150),cv2.FONT_HERSHEY_SIMPLEX,1,(0, 255, 0),1)
-            # persons[selected].target=True
-            print("Target acquired")
-            ID=(True,"Target")
+        try:
+            if persons[selected].roi is not None and target is None:
+                # target=persons[selected].get_image()
+                target=shared_frame[max(0, int(persons[selected].rect.y-50)):int(persons[selected].rect.ey+50),
+                                        max(0, int(persons[selected].rect.x-100)):int(persons[selected].rect.ex+100)]
+                # cv2.putText(persons[selected].roi, "Target",(10, 150),cv2.FONT_HERSHEY_SIMPLEX,1,(0, 255, 0),1)
+                # persons[selected].target=True
+                print("Target acquired")
+                ID=(True,"Target")
+        except Exception as e:
+            pass
         if searching:
             if ID[0]:
                 if not debug:
@@ -404,8 +411,7 @@ def directmode():
                 searching=False
                 lastpreset=0
             elif not facial_thread and delay+2>time.time():
-                        print(delay)
-                        if target is not None:
+                        if target is not None and shared_frame is not None:
                             facial_thread = True
                             print("Starting face verification thread.")
                             ROI = shared_frame[max(0, int(persons[selected].rect.y - 50)):min(int(persons[selected].rect.ey + 50), shared_frame.shape[0]),
@@ -414,7 +420,10 @@ def directmode():
                                 target=verify_one_face,
                                 args=(ROI, target)
                             )
-                        verification_thread.start()
+                        try:
+                            verification_thread.start()
+                        except Exception as e:
+                            print(e)
 
     elif len(persons)>1:
         print("found multiple persons")
@@ -452,10 +461,12 @@ def stream_deck_command(command):
         mc.L = 1
         mc.Senitivityx = 10
         if len(persons) > 1:
-            location=400
+            location=persons[selected].rect.cx
+            next=240
             for person in persons:
-                if person.rect.cx<location:
-                    location=person.rect.cx
+                print(person.rect.cx-location) 
+                if person.rect.cx-location<0 and abs(person.rect.cx-location)<next:
+                    next=person.rect.cx-location
                     selected=persons.index(person)
             
     elif command == "right":
@@ -463,10 +474,11 @@ def stream_deck_command(command):
         mc.Senitivityx = 10
         mc.r = 1
         if len(persons) > 1:
-            location=0
+            location=persons[selected].rect.cx
+            next=240
             for person in persons:
-                if person.rect.cx>location:
-                    location=person.rect.cx
+                if location-person.rect.cx<0 and abs(person.rect.cx-location)<next:
+                    next=location-person.rect.cx
                     selected=persons.index(person)
     elif command == "stopmove":
         mc.Senitivityx = 2
@@ -588,15 +600,15 @@ def handlepeaple(faces):
             new_person = P.Person(tracker_type='KCF')
             new_person.init(frame, new_face)
             persons.append(new_person)
-            if presetcalled:
-                distance=100000
-                for person in persons:
-                    deltax = person.rect.cx -(640/2)
-                    deltay = person.rect.cy - (480/2)
-                    dist = (deltax ** 2) + (deltay ** 2)
-                    if dist<distance:
-                        distance=dist
-                        selected=persons.index(person)
+            # if presetcalled:
+            #     distance=100000
+            #     for person in persons:
+            #         deltax = person.rect.cx -(640/2)
+            #         deltay = person.rect.cy - (480/2)
+            #         dist = (deltax ** 2) + (deltay ** 2)
+            #         if dist<distance:
+            #             distance=dist
+            #             selected=persons.index(person)
             if old_len == 0 and len(persons) > 0:
                 endthread = False
                 threading.Thread(target=track).start()
@@ -639,7 +651,7 @@ def handleGUI():
     if not detect or key_held:
         cv2.putText(frame, text, (20, 100), font, 1, (0, 0, 255), 2)
     if autocut:
-        cv2.circle(frame, (20, 20), 25, (255, 0, 0), -1)
+        cv2.putText(frame, "AUTO CUT", (int(frame.shape[1] / 2) - 160, int(frame.shape[0] / 2)-50), font, 2, (255, 0, 0), 2)
     if direct:
         cv2.putText(frame, "DIRECT MODE", (int(frame.shape[1] / 2) - 200, int(frame.shape[0] / 2)), font, 2, (0, 0, 255), 2)
     max_faces = frame.shape[0] // 200
@@ -811,12 +823,12 @@ def main():
                     face_detection_interval = 2
                     break
             if len(persons) > 0:
-                if len (persons)>1 and lastselctedy is None:
-                    lastselctedy=persons[0].rect.cy
-                    for i, person in enumerate(persons):
-                        if person.rect.cy>=lastselctedy:
-                            selected=i
-                            lastselctedy=person.rect.cy
+                # if len (persons)>1 and lastselctedy is None:
+                #     lastselctedy=persons[selected].rect.cy
+                #     for i, person in enumerate(persons):
+                #         if person.rect.cy>=lastselctedy:
+                #             selected=i
+                #             lastselctedy=person.rect.cy
                 if len(persons) > 0 and selected >= len(persons):
                     selected = 0
                     
