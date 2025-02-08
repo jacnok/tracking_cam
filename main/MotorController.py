@@ -1,5 +1,6 @@
 import socket
-
+doublesend = False
+cam_IP2="192.168.20.202"
 # Generate Functions
 #############################################################################
 # Commands from https://f.hubspotusercontent20.net/hubfs/418770/PTZOptics%20Documentation/Misc/PTZOptics%20VISCA%20Commands.pdf
@@ -55,6 +56,12 @@ def execute_commandTCP(cam_IP, command, port):
     data = bytes.fromhex(command)
     s.sendall(data)
     s.close()
+    if doublesend:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((cam_IP2, port))
+        data = bytes.fromhex(command)
+        s.sendall(data)
+        s.close()
 
 def execute_commandUDP(cam_IP, command, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Use SOCK_DGRAM for UDP

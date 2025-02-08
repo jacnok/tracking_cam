@@ -48,6 +48,7 @@ def on_press(key):
             key_pressed = key.char
             # print(mc.extract_position())
             if key_pressed == "a" :
+                print("a")
                 if len(persons) > 1:
                     location=persons[selected].rect.cx
                     next=240
@@ -182,10 +183,11 @@ def verify_faces(face_img, known_faces):
                 result = DeepFace.verify(
                     face_img,
                     known_img,
-                    model_name="Dlib",           # Choose appropriate model
+                    model_name="Facenet",           # Choose appropriate model
                     detector_backend="skip",      # Use OpenCV for face detection
                     enforce_detection=True
                 )
+                print("here is the result")
                 print(result["distance"])
                 if result["distance"]<.09:
                     ID = (True, name)
@@ -221,9 +223,9 @@ def verify_one_face(face_img, past_face):
         result = DeepFace.verify(
             face_img,
             past_face,
-            model_name="Dlib",           # Choose appropriate model
+            model_name="Facenet",           # Choose appropriate model
             detector_backend="skip",      # Use OpenCV for face detection
-            threshold=.04,
+            threshold=.08,
             enforce_detection=True
         )
         if result['verified']:
@@ -234,7 +236,7 @@ def verify_one_face(face_img, past_face):
         
         # If no match is found after checking all known faces
         ID = (False, "Target")
-        print("No Match found")
+        print(f"No Match found :{result['distance']}")
     except Exception as e:
         print(f"Exception in face verification: {e}")
         ID = (False, "Target")
@@ -326,7 +328,13 @@ def controls(key_pressed):
         "v": lambda: update_bound("y", -25),
         "b": lambda: update_selected(),
         "r": lambda: persons.clear(),
-        "y": lambda: callpreset(1),
+        "1": lambda: callpreset(1),
+        "2": lambda: callpreset(2),
+        "3": lambda: callpreset(3),
+        "4": lambda: callpreset(4),
+        "5": lambda: callpreset(5),
+        "6": lambda: callpreset(6),
+        "7": lambda: callpreset(7),
         "e": lambda: toggle("detect"),
         "t": lambda: toggle("alttracking"),
         "p": lambda: toggle_direct_autocut()
@@ -404,12 +412,14 @@ def directmode():
             pass
         if searching:
             if ID[0]:
+                
                 if not debug:
                     ac.switchcam(5)
                 print("switched to cam 5")
                 autocut=True
                 searching=False
                 lastpreset=0
+                
             elif not facial_thread and delay+2>time.time():
                         if target is not None and shared_frame is not None:
                             facial_thread = True
@@ -654,6 +664,9 @@ def handleGUI():
         cv2.putText(frame, "AUTO CUT", (int(frame.shape[1] / 2) - 160, int(frame.shape[0] / 2)-50), font, 2, (255, 0, 0), 2)
     if direct:
         cv2.putText(frame, "DIRECT MODE", (int(frame.shape[1] / 2) - 200, int(frame.shape[0] / 2)), font, 2, (0, 0, 255), 2)
+    if ID[0]:
+        cv2.putText(frame, f"ID: {ID[1]}", (20, 50), font, 1, (0, 255, 0), 2)
+    
     max_faces = frame.shape[0] // 200
     side_panel_new = np.zeros((frame.shape[0], 100, 3), dtype="uint8")
     try:
@@ -806,6 +819,8 @@ def main():
             if len(persons) == 0:
                 face_detection_interval = 1
                 if autocut:
+                    if debug:
+                        print("autocut")
                     if direct and not debug:
                         lastcam = 4 if lastcam == 6 else 6
                         ac.switchcam(lastcam)
